@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="rw">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Ai yawe</title>
+
+
+    <style>
+
+        /* =====================================================
+           Ai Yawe - COMPLETE PAGE STYLE
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+            margin: 0;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #fff5fa;
+
+            color: #2d1b2e;
+        }
+
+
+        button,
+        input {
+            font-family: inherit;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .main-header {
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
+
+            background: #ec4899;
+
+            border-bottom:
+                1px solid rgba(255, 255, 255, 0.25);
+
+            padding:
+                12px 20px;
+
+            box-shadow:
+                0 2px 12px rgba(120, 20, 80, 0.15);
+        }
+
+
+        .header-inner {
+
+            max-width: 1400px;
+
+            margin: auto;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+
+        .logo-area {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            min-width: 0;
+        }
+
+
+        /* =====================================================
+           REAL LOGO
+        ===================================================== */
+
+        .logo {
+
+            width: 46px;
+
+            height: 46px;
+
+            min-width: 46px;
+
+            display: block;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            background: white;
+
+            border:
+                1px solid rgba(255, 255, 255, 0.55);
+
+            box-shadow:
+                0 2px 8px rgba(80, 10, 50, 0.18);
+        }
+
+
+        .logo-area h1 {
+
+            margin: 0;
+
+            color: white;
+
+            font-size: 22px;
+
+            font-weight: 800;
+        }
+
+
+        .logo-area p {
+
+            margin: 3px 0 0;
+
+            color: white;
+
+            font-size: 12px;
+
+            font-weight: bold;
+
+            opacity: 0.95;
+        }
+
+
+        /* =====================================================
+           TOP NAVIGATION
+        ===================================================== */
+
+        .top-nav {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+        }
+
+
+        .top-nav button {
+
+            border: none;
+
+            background: transparent;
+
+            color: white;
+
+            padding:
+                9px 12px;
+
+            border-radius: 9px;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            font-weight: 800;
+
+            white-space: nowrap;
+        }
+
+
+        .top-nav button:hover {
+
+            background:
+                rgba(255, 255, 255, 0.18);
+        }
+
+
+        /* =====================================================
+           MAIN APP LAYOUT
+        ===================================================== */
+
+        .app-layout {
+
+            max-width: 1400px;
+
+            margin: auto;
+
+            display: grid;
+
+            grid-template-columns:
+                310px minmax(0, 1fr);
+
+            min-height:
+                calc(100vh - 70px);
+        }
+
+
+        /* =====================================================
+           LEFT SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+
+            background: #fff0f6;
+
+            border-right:
+                1px solid #f4bfd6;
+
+            padding: 20px;
+
+            overflow-y: auto;
+        }
+
+
+        .sidebar-title {
+
+            font-size: 19px;
+
+            font-weight: 800;
+
+            color: #9d174d;
+
+            margin-bottom: 6px;
+        }
+
+
+        .sidebar-subtitle {
+
+            font-size: 13px;
+
+            color: #7a4059;
+
+            line-height: 1.5;
+
+            margin-bottom: 18px;
+        }
+
+
+        /* =====================================================
+           TOPIC CARDS
+        ===================================================== */
+
+        .topic-card {
+
+            width: 100%;
+
+            border:
+                1px solid #f2a9ca;
+
+            background: #fce7f3;
+
+            border-radius: 14px;
+
+            padding: 14px;
+
+            margin-bottom: 10px;
+
+            cursor: pointer;
+
+            text-align: left;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            transition:
+                0.2s ease;
+
+            box-shadow:
+                0 2px 7px rgba(157, 23, 77, 0.05);
+        }
+
+
+        .topic-card:hover {
+
+            background: #fbcfe8;
+
+            border-color: #ec4899;
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        .topic-card.active {
+
+            background: #f9a8d4;
+
+            border-color: #db2777;
+        }
+
+
+        .topic-card-icon {
+
+            width: 43px;
+
+            height: 43px;
+
+            min-width: 43px;
+
+            border-radius: 12px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background: white;
+
+            font-size: 21px;
+        }
+
+
+        .topic-card-content {
+
+            flex: 1;
+
+            min-width: 0;
+        }
+
+
+        .topic-card-title {
+
+            color: #831843;
+
+            font-size: 14px;
+
+            font-weight: 800;
+
+            margin-bottom: 3px;
+        }
+
+
+        .topic-card-description {
+
+            color: #7a4059;
+
+            font-size: 11px;
+
+            line-height: 1.4;
+        }
+
+
+        /* =====================================================
+           TOPIC PANELS
+        ===================================================== */
+
+        .topic-panel {
+
+            display: none;
+
+            margin:
+                -2px 0 14px;
+
+            padding: 11px;
+
+            border-radius: 12px;
+
+            background: #fff;
+
+            border:
+                1px solid #f3c5d9;
+        }
+
+
+        .topic-panel.active {
+
+            display: block;
+        }
+
+
+        .topic-panel-title {
+
+            color: #9d174d;
+
+            font-size: 12px;
+
+            font-weight: 800;
+
+            margin-bottom: 9px;
+        }
+
+
+        .topic-question-button {
+
+            width: 100%;
+
+            border:
+                1px solid #f1d3e0;
+
+            background: #fff8fc;
+
+            border-radius: 9px;
+
+            padding: 10px;
+
+            margin-bottom: 7px;
+
+            text-align: left;
+
+            cursor: pointer;
+
+            color: #5d263e;
+
+            font-size: 12px;
+
+            line-height: 1.4;
+        }
+
+
+        .topic-question-button:hover {
+
+            background: #fce7f3;
+
+            border-color: #ec4899;
+        }
+
+
+        /* =====================================================
+           QUICK HELP
+        ===================================================== */
+
+        .sidebar-help {
+
+            margin-top: 22px;
+
+            padding-top: 18px;
+
+            border-top:
+                1px solid #f1bfd5;
+        }
+
+
+        .sidebar-help-title {
+
+            color: #9d174d;
+
+            font-size: 14px;
+
+            font-weight: 800;
+
+            margin-bottom: 10px;
+        }
+
+
+        .help-link {
+
+            display: block;
+
+            text-decoration: none;
+
+            color: #7a4059;
+
+            font-size: 12px;
+
+            padding: 8px 0;
+
+            font-weight: bold;
+        }
+
+
+        .help-link:hover {
+
+            color: #db2777;
+        }
+
+
+        /* =====================================================
+           MAIN CHAT
+        ===================================================== */
+
+        .chat-main {
+
+            display: flex;
+
+            flex-direction: column;
+
+            min-width: 0;
+
+            background: #ffffff;
+        }
+
+
+        .chat-top {
+
+            padding:
+                22px 30px 14px;
+
+            border-bottom:
+                1px solid #f4d7e4;
+
+            background: #fffafd;
+        }
+
+
+        .chat-top h2 {
+
+            margin: 0;
+
+            color: #831843;
+
+            font-size: 23px;
+        }
+
+
+        .chat-top p {
+
+            margin:
+                6px 0 0;
+
+            color: #7a4059;
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           CHAT ANSWERS
+        ===================================================== */
+
+        #answer {
+
+            flex: 1;
+
+            width: 100%;
+
+            max-width: 900px;
+
+            margin: auto;
+
+            padding:
+                25px 30px 150px;
+
+            overflow-y: auto;
+        }
+
+
+        .welcome-chat {
+
+            max-width: 700px;
+
+            margin:
+                55px auto;
+
+            text-align: center;
+        }
+
+
+        .welcome-chat-icon {
+
+            font-size: 50px;
+
+            margin-bottom: 14px;
+        }
+
+
+        .welcome-chat h2 {
+
+            color: #831843;
+
+            margin-bottom: 10px;
+        }
+
+
+        .welcome-chat p {
+
+            color: #7a4059;
+
+            line-height: 1.7;
+        }
+
+
+        /* =====================================================
+           USER MESSAGE
+        ===================================================== */
+
+        .user-message {
+
+            display: flex;
+
+            justify-content: flex-end;
+
+            margin-bottom: 18px;
+        }
+
+
+        .user-bubble {
+
+            max-width: 75%;
+
+            background: #ec4899;
+
+            color: white;
+
+            padding:
+                11px 15px;
+
+            border-radius:
+                16px 16px 4px 16px;
+
+            line-height: 1.5;
+
+            font-size: 14px;
+
+            box-shadow:
+                0 3px 10px rgba(236, 72, 153, 0.15);
+        }
+
+
+        .user-icon {
+
+            display: none;
+        }
+
+
+        /* =====================================================
+           AI MESSAGE
+        ===================================================== */
+
+        .ai-message {
+
+            display: flex;
+
+            gap: 10px;
+
+            margin-bottom: 25px;
+
+            line-height: 1.65;
+
+            font-size: 14px;
+
+            color: #3f2632;
+        }
+
+
+        .ai-icon {
+
+            width: 35px;
+
+            height: 35px;
+
+            min-width: 35px;
+
+            border-radius: 50%;
+
+            background: #fce7f3;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            color: #9d174d;
+
+            font-size: 12px;
+
+            font-weight: 800;
+        }
+
+
+        .ai-message > div:last-child {
+
+            max-width: 750px;
+        }
+
+
+        .ai-message h3 {
+
+            color: #831843;
+        }
+
+
+        .source-note {
+
+            margin-top: 15px;
+
+            padding: 12px;
+
+            background: #fff7fb;
+
+            border:
+                1px solid #f3d5e3;
+
+            border-radius: 9px;
+
+            font-size: 11px;
+
+            color: #7a4059;
+        }
+
+
+        .safety-response {
+
+            max-width: 750px;
+        }
+
+
+        .important-warning {
+
+            padding: 12px;
+
+            border-radius: 10px;
+
+            background: #fff1f2;
+
+            border:
+                1px solid #fecdd3;
+
+            margin-top: 12px;
+        }
+
+
+        /* =====================================================
+           CHAT INPUT
+        ===================================================== */
+
+        .chat-input-area {
+
+            position: fixed;
+
+            bottom: 0;
+
+            left: 310px;
+
+            right: 0;
+
+            background:
+                rgba(255, 250, 253, 0.97);
+
+            border-top:
+                1px solid #f4c4d9;
+
+            padding:
+                15px 25px;
+
+            z-index: 50;
+        }
+
+
+        .chat-input-inner {
+
+            max-width: 850px;
+
+            margin: auto;
+        }
+
+
+        .input-row {
+
+            display: flex;
+
+            gap: 10px;
+        }
+
+
+        #question {
+
+            flex: 1;
+
+            min-width: 0;
+
+            padding:
+                14px 16px;
+
+            border:
+                1px solid #f0b6d0;
+
+            border-radius: 12px;
+
+            background: white;
+
+            color: #3f2632;
+
+            font-size: 14px;
+
+            outline: none;
+        }
+
+
+        #question:focus {
+
+            border-color: #ec4899;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(236, 72, 153, 0.12);
+        }
+
+
+        .send-button {
+
+            border: none;
+
+            background: #ec4899;
+
+            color: white;
+
+            padding:
+                0 23px;
+
+            border-radius: 12px;
+
+            cursor: pointer;
+
+            font-weight: 800;
+
+            font-size: 14px;
+        }
+
+
+        .send-button:hover {
+
+            background: #db2777;
+        }
+
+
+        .privacy-reminder {
+
+            text-align: center;
+
+            color: #9b6079;
+
+            font-size: 11px;
+
+            margin-top: 8px;
+        }
+
+
+        /* =====================================================
+           CLEAR BUTTON
+        ===================================================== */
+
+        .clear-button {
+
+            position: fixed;
+
+            bottom: 80px;
+
+            right: 25px;
+
+            border:
+                1px solid #f0b6d0;
+
+            background: white;
+
+            color: #831843;
+
+            padding:
+                8px 12px;
+
+            border-radius: 9px;
+
+            cursor: pointer;
+
+            font-size: 11px;
+
+            font-weight: bold;
+
+            z-index: 60;
+        }
+
+
+        .clear-button:hover {
+
+            background: #fce7f3;
+        }
+
+
+        /* =====================================================
+           WELCOME MODAL
+        ===================================================== */
+
+        .welcome-modal {
+
+            position: fixed;
+
+            inset: 0;
+
+            background:
+                rgba(60, 10, 40, 0.60);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            z-index: 1000;
+
+            padding: 20px;
+        }
+
+
+        .welcome-box {
+
+            background: white;
+
+            border-radius: 20px;
+
+            padding: 30px;
+
+            max-width: 520px;
+
+            width: 100%;
+
+            text-align: center;
+
+            box-shadow:
+                0 15px 45px rgba(0, 0, 0, 0.25);
+        }
+
+
+        .welcome-logo {
+
+            font-size: 48px;
+        }
+
+
+        .welcome-box h1 {
+
+            color: #831843;
+
+            font-size: 24px;
+        }
+
+
+        .welcome-box h3 {
+
+            color: #9d174d;
+        }
+
+
+        .welcome-box p {
+
+            color: #7a4059;
+
+            line-height: 1.65;
+        }
+
+
+        .start-button {
+
+            border: none;
+
+            background: #ec4899;
+
+            color: white;
+
+            padding:
+                13px 25px;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            font-weight: 800;
+
+            margin-top: 10px;
+        }
+
+
+        .start-button:hover {
+
+            background: #db2777;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 800px) {
+
+            .header-inner {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+            }
+
+
+            .top-nav {
+
+                width: 100%;
+
+                justify-content: space-between;
+            }
+
+
+            .app-layout {
+
+                display: block;
+            }
+
+
+            .sidebar {
+
+                border-right: none;
+
+                border-bottom:
+                    1px solid #f4bfd6;
+
+                padding: 15px;
+            }
+
+
+            .topic-card {
+
+                display: inline-flex;
+
+                width: calc(50% - 7px);
+
+                vertical-align: top;
+
+                margin-right: 5px;
+            }
+
+
+            .topic-card-description {
+
+                display: none;
+            }
+
+
+            .chat-input-area {
+
+                left: 0;
+
+                padding: 10px;
+            }
+
+
+            #answer {
+
+                padding:
+                    20px 15px 145px;
+            }
+
+
+            .chat-top {
+
+                padding:
+                    18px 15px 12px;
+            }
+
+
+            .clear-button {
+
+                bottom: 82px;
+
+                right: 10px;
+            }
+
+        }
+
+
+        @media (max-width: 500px) {
+
+            .topic-card {
+
+                width: 100%;
+
+                margin-right: 0;
+            }
+
+
+            .top-nav button {
+
+                padding:
+                    8px 5px;
+
+                font-size: 12px;
+            }
+
+
+            .input-row {
+
+                gap: 6px;
+            }
+
+
+            .send-button {
+
+                padding:
+                    0 15px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     WELCOME MODAL
+===================================================== -->
+
+<div
+    id="welcome-modal"
+    class="welcome-modal"
+>
+
+    <div class="welcome-box">
+
+        <div class="welcome-logo">
+            🤍
+        </div>
+
+        <h1>
+            Murakaza neza kuri Ai Yawe
+        </h1>
+
+        <p>
+            Ai Yawe ni umufasha utanga amakuru
+            ku buzima bw'imyororokere n'imibonano
+            mpuzabitsina mu Kinyarwanda.
+        </p>
+
+        <h3>
+            🔐 Ibanga n'umutekano
+        </h3>
+
+        <p>
+            Irinde gushyiramo amazina yawe,
+            aderesi, nimero ya telefoni cyangwa
+            andi makuru akuranga.
+        </p>
+
+        <p>
+            Ai Yawe itanga amakuru rusange.
+            Ntabwo isimbura umukozi w'ubuzima.
+        </p>
+
+        <button
+            onclick="acceptWelcome()"
+            class="start-button"
+        >
+            Ndabyumva — Tangira
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="main-header">
+
+    <div class="header-inner">
+
+
+        <!-- LEFT SIDE: REAL LOGO AND TITLE -->
+
+        <div class="logo-area">
+
+            <img
+                src="logo.jpg"
+                alt="Ai Yawe"
+                class="logo"
+            >
+
+            <div>
+
+                <h1>
+                    Ai Yawe
+                </h1>
+
+                <p>
+                    Amakuru yizewe mu Kinyarwanda
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT SIDE: NAVIGATION -->
+
+        <nav class="top-nav">
+
+            <button onclick="goHome()">
+                🏠 Ahabanza
+            </button>
+
+            <button onclick="showAbout()">
+                ℹ️ Abo turi bo
+            </button>
+
+            <button onclick="showPrivacy()">
+                🔐 Ibanga
+            </button>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     APP LAYOUT
+===================================================== -->
+
+<div class="app-layout">
+
+
+    <!-- =================================================
+         LEFT SIDEBAR
+    ================================================= -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-title">
+            Ai Yawe
+        </div>
+
+        <div class="sidebar-subtitle">
+            Hitamo ingingo ushaka kumenya.
+            Kanda ku ngingo kugira ngo ubone
+            ibibazo bishobora kugufasha.
+        </div>
+
+
+        <!-- IMIHANGO -->
+
+        <button
+            class="topic-card"
+            onclick="toggleTopic('imihango', this)"
+        >
+
+            <div class="topic-card-icon">
+                🩸
+            </div>
+
+            <div class="topic-card-content">
+
+                <div class="topic-card-title">
+                    Imihango
+                </div>
+
+                <div class="topic-card-description">
+                    Imihango, ububabare,
+                    gutinda n'imihindagurikire.
+                </div>
+
+            </div>
+
+        </button>
+
+
+        <div
+            id="panel-imihango"
+            class="topic-panel"
+        >
+
+            <div class="topic-panel-title">
+                Ibibazo ku mihango
+            </div>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ese imihango isanzwe iza ryari?')"
+            >
+                Ese imihango isanzwe iza ryari?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ni ryari imihango iba idasanzwe?')"
+            >
+                Ni ryari imihango iba idasanzwe?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ese kubabara mu gihe cy imihango ni ibisanzwe?')"
+            >
+                Ese kubabara mu gihe cy'imihango ni ibisanzwe?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ni iki nakora niba imihango yanjye itinze?')"
+            >
+                Ni iki nakora niba imihango yanjye itinze?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ese nshobora gusama inda mu gihe cy imihango?')"
+            >
+                Ese nshobora gusama inda mu gihe cy'imihango?
+            </button>
+
+        </div>
+
+
+        <!-- GUTWITA -->
+
+        <button
+            class="topic-card"
+            onclick="toggleTopic('gutwita', this)"
+        >
+
+            <div class="topic-card-icon">
+                🤰
+            </div>
+
+            <div class="topic-card-content">
+
+                <div class="topic-card-title">
+                    Gutwita
+                </div>
+
+                <div class="topic-card-description">
+                    Ibimenyetso byo gutwita
+                    no kwipimisha.
+                </div>
+
+            </div>
+
+        </button>
+
+
+        <div
+            id="panel-gutwita"
+            class="topic-panel"
+        >
+
+            <div class="topic-panel-title">
+                Ibibazo ku gutwita
+            </div>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ni ryari namenya ko ntwite?')"
+            >
+                Ni ryari namenya ko ntwite?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ese nakwipima ko ntwite?')"
+            >
+                Ese nakwipima ko ntwite?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ni ibihe bimenyetso by inda?')"
+            >
+                Ni ibihe bimenyetso by'inda?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Nakora iki niba ntwite ntari niteguye?')"
+            >
+                Nakora iki niba ntwite ntari niteguye?
+            </button>
+
+        </div>
+
+
+        <!-- KUBONEZA -->
+
+        <button
+            class="topic-card"
+            onclick="toggleTopic('kuboneza', this)"
+        >
+
+            <div class="topic-card-icon">
+                💊
+            </div>
+
+            <div class="topic-card-content">
+
+                <div class="topic-card-title">
+                    Kuboneza urubyaro
+                </div>
+
+                <div class="topic-card-description">
+                    Uburyo bwo kwirinda
+                    gutwita utateganyije.
+                </div>
+
+            </div>
+
+        </button>
+
+
+        <div
+            id="panel-kuboneza"
+            class="topic-panel"
+        >
+
+            <div class="topic-panel-title">
+                Ibibazo ku kuboneza urubyaro
+            </div>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ni ubuhe buryo bwo kuboneza urubyaro?')"
+            >
+                Ni ubuhe buryo bwo kuboneza urubyaro?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ese agakingirizo karinda gutwita?')"
+            >
+                Ese agakingirizo karinda gutwita?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ese nakoresha ibinini byo kuboneza urubyaro?')"
+            >
+                Ese nakoresha ibinini byo kuboneza urubyaro?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Hari uburyo bwo kuboneza urubyaro bumara igihe kirekire?')"
+            >
+                Hari uburyo bwo kuboneza urubyaro bumara igihe kirekire?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Nakora iki nyuma y imibonano idakingiye?')"
+            >
+                Nakora iki nyuma y'imibonano idakingiye?
+            </button>
+
+        </div>
+
+
+        <!-- HIV & STI -->
+
+        <button
+            class="topic-card"
+            onclick="toggleTopic('hiv', this)"
+        >
+
+            <div class="topic-card-icon">
+                🦠
+            </div>
+
+            <div class="topic-card-content">
+
+                <div class="topic-card-title">
+                    HIV & STI
+                </div>
+
+                <div class="topic-card-description">
+                    HIV n'indwara zandurira
+                    mu mibonano mpuzabitsina.
+                </div>
+
+            </div>
+
+        </button>
+
+
+        <div
+            id="panel-hiv"
+            class="topic-panel"
+        >
+
+            <div class="topic-panel-title">
+                Ibibazo kuri HIV & STI
+            </div>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('HIV yandura ite?')"
+            >
+                HIV yandura ite?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ni ryari nakwipimisha HIV?')"
+            >
+                Ni ryari nakwipimisha HIV?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('STI ni iki?')"
+            >
+                STI ni iki?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ni ibihe bimenyetso bya STI?')"
+            >
+                Ni ibihe bimenyetso bya STI?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Nakwipimisha nte STI?')"
+            >
+                Nakwipimisha nte STI?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ese agakingirizo karinda HIV na STI?')"
+            >
+                Ese agakingirizo karinda HIV na STI?
+            </button>
+
+        </div>
+
+
+        <!-- CONSENT -->
+
+        <button
+            class="topic-card"
+            onclick="toggleTopic('consent', this)"
+        >
+
+            <div class="topic-card-icon">
+                ❤️
+            </div>
+
+            <div class="topic-card-content">
+
+                <div class="topic-card-title">
+                    Kwemera no kubahana
+                </div>
+
+                <div class="topic-card-description">
+                    Ukwemera, uburenganzira
+                    no kubahana.
+                </div>
+
+            </div>
+
+        </button>
+
+
+        <div
+            id="panel-consent"
+            class="topic-panel"
+        >
+
+            <div class="topic-panel-title">
+                Ibibazo ku kwemera
+            </div>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Kwemera imibonano mpuzabitsina bisobanura iki?')"
+            >
+                Kwemera imibonano bisobanura iki?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ese umuntu ashobora kuvuga oya?')"
+            >
+                Ese umuntu ashobora kuvuga oya?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ese kwemera bishobora gukurwaho?')"
+            >
+                Ese kwemera bishobora gukurwaho?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Nakora iki niba umuntu anshyiraho igitutu?')"
+            >
+                Nakora iki niba umuntu anshyiraho igitutu?
+            </button>
+
+        </div>
+
+
+        <!-- GBV -->
+
+        <button
+            class="topic-card"
+            onclick="toggleTopic('gbv', this)"
+        >
+
+            <div class="topic-card-icon">
+                🛡️
+            </div>
+
+            <div class="topic-card-content">
+
+                <div class="topic-card-title">
+                    Ihohoterwa
+                </div>
+
+                <div class="topic-card-description">
+                    Ihohoterwa rishingiye ku
+                    gitsina n'ubufasha.
+                </div>
+
+            </div>
+
+        </button>
+
+
+        <div
+            id="panel-gbv"
+            class="topic-panel"
+        >
+
+            <div class="topic-panel-title">
+                Ibibazo ku ihohoterwa
+            </div>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ihohoterwa rishingiye ku gitsina ni iki?')"
+            >
+                Ihohoterwa rishingiye ku gitsina ni iki?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Nakora iki niba nafashwe ku ngufu?')"
+            >
+                Nakora iki niba nafashwe ku ngufu?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Nakora iki niba umuntu ankoresha imibonano ku gahato?')"
+            >
+                Nakora iki niba umuntu ankoresha ku gahato?
+            </button>
+
+            <button
+                class="topic-question-button"
+                onclick="askTopic('Ni hehe nshobora gushakira ubufasha ku ihohoterwa?')"
+            >
+                Ni hehe nshobora gushakira ubufasha?
+            </button>
+
+        </div>
+
+
+        <!-- QUICK HELP -->
+
+        <div class="sidebar-help">
+
+            <div class="sidebar-help-title">
+                🆘 Ubufasha bwihutirwa
+            </div>
+
+            <a
+                href="tel:112"
+                class="help-link"
+            >
+                🚨 Emergency — 112
+            </a>
+
+            <a
+                href="tel:912"
+                class="help-link"
+            >
+                🚑 Ambulance — 912
+            </a>
+
+            <a
+                href="tel:3512"
+                class="help-link"
+            >
+                🛡️ Ihohoterwa — 3512
+            </a>
+
+            <a
+                href="tel:116"
+                class="help-link"
+            >
+                👧 Child Help Line — 116
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =================================================
+         MAIN CHAT
+    ================================================= -->
+
+    <main class="chat-main">
+
+        <div class="chat-top">
+
+            <h2>
+                Baza Ai Yawe 🤍
+            </h2>
+
+            <p>
+                Baza ikibazo cyawe ku buzima
+                bw'imyororokere n'imibonano mpuzabitsina.
+            </p>
+
+        </div>
+
+
+        <div id="answer">
+
+            <div class="welcome-chat">
+
+                <div class="welcome-chat-icon">
+                    🤍
+                </div>
+
+                <h2>
+                    Murakaza neza!
+                </h2>
+
+                <p>
+                    Ndi Ai Yawe. Ushobora kumbaza
+                    ikibazo mu Kinyarwanda.
+                </p>
+
+                <p>
+                    Hitamo ingingo ibumoso cyangwa
+                    wandike ikibazo cyawe hasi.
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- =====================================================
+     CHAT INPUT
+===================================================== -->
+
+<div class="chat-input-area">
+
+    <div class="chat-input-inner">
+
+        <div class="input-row">
+
+            <input
+                type="text"
+                id="question"
+                placeholder="Andika ikibazo cyawe..."
+                autocomplete="off"
+            >
+
+            <button
+                onclick="sendQuestion()"
+                class="send-button"
+            >
+                Ohereza
+            </button>
+
+        </div>
+
+
+        <div class="privacy-reminder">
+
+            🔐 Ntushyiremo amazina yawe cyangwa
+            andi makuru akuranga.
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     CLEAR CHAT
+===================================================== -->
+
+<button
+    onclick="clearChat()"
+    class="clear-button"
+>
+    Siba ibiganiro
+</button>
+
+
+<!-- =====================================================
+     EXTRA PAGE FUNCTIONS
+===================================================== -->
+
+<script>
+
+function toggleTopic(topic, button) {
+
+    const panels =
+        document.querySelectorAll(".topic-panel");
+
+    const cards =
+        document.querySelectorAll(".topic-card");
+
+    const selected =
+        document.getElementById("panel-" + topic);
+
+    const alreadyOpen =
+        selected &&
+        selected.classList.contains("active");
+
+
+    panels.forEach(function(panel) {
+
+        panel.classList.remove("active");
+
+    });
+
+
+    cards.forEach(function(card) {
+
+        card.classList.remove("active");
+
+    });
+
+
+    if (selected && !alreadyOpen) {
+
+        selected.classList.add("active");
+
+        if (button) {
+
+            button.classList.add("active");
+
+        }
+
+    }
+
+}
+
+
+function askTopic(question) {
+
+    const input =
+        document.getElementById("question");
+
+    if (!input) {
+        return;
+    }
+
+
+    input.value = question;
+
+    input.focus();
+
+
+    if (typeof sendQuestion === "function") {
+
+        sendQuestion();
+
+    }
+
+}
+
+
+function goHome() {
+
+    const answer =
+        document.getElementById("answer");
+
+    if (!answer) {
+        return;
+    }
+
+
+    answer.innerHTML = `
+
+        <div class="welcome-chat">
+
+            <div class="welcome-chat-icon">
+                🤍
+            </div>
+
+            <h2>
+                Murakaza neza!
+            </h2>
+
+            <p>
+                Ndi Ai Yawe. Ushobora kumbaza
+                ikibazo mu Kinyarwanda.
+            </p>
+
+            <p>
+                Hitamo ingingo ibumoso cyangwa
+                wandike ikibazo cyawe hasi.
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+function showAbout() {
+
+    const answer =
+        document.getElementById("answer");
+
+    if (!answer) {
+        return;
+    }
+
+
+    answer.innerHTML = `
+
+        <div class="ai-message">
+
+            <div class="ai-icon">
+                AI
+            </div>
+
+            <div>
+
+                <h3>
+                    ℹ️ Abo turi bo
+                </h3>
+
+                <p>
+                    Ai Yawe ni umushinga ugamije
+                    gufasha abantu kubona amakuru
+                    ku buzima bw'imyororokere
+                    n'imibonano mpuzabitsina
+                    mu Kinyarwanda.
+                </p>
+
+                <p>
+                    Ushobora kubaza ibibazo ku
+                    mihango, gutwita, kuboneza
+                    urubyaro, HIV & STI, ukwemera
+                    n'ihohoterwa.
+                </p>
+
+                <p>
+                    Ai Yawe itanga amakuru rusange
+                    kandi ntabwo isimbura umukozi
+                    w'ubuzima.
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+function showPrivacy() {
+
+    const answer =
+        document.getElementById("answer");
+
+    if (!answer) {
+        return;
+    }
+
+
+    answer.innerHTML = `
+
+        <div class="ai-message">
+
+            <div class="ai-icon">
+                🔐
+            </div>
+
+            <div>
+
+                <h3>
+                    🔐 Ibanga n'umutekano
+                </h3>
+
+                <p>
+                    Irinde gushyiramo amazina yawe,
+                    aderesi, nimero ya telefoni
+                    cyangwa andi makuru akuranga.
+                </p>
+
+                <p>
+                    Baza ikibazo cyawe utagaragaje
+                    umwirondoro wawe.
+                </p>
+
+                <p>
+                    Niba ikibazo cyawe ari icyihutirwa,
+                    ntutegereze AI. Shaka ubufasha
+                    bw'umukozi w'ubuzima cyangwa
+                    serivisi z'ubutabazi.
+                </p>
+
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+</script>
+
+
+<!-- =====================================================
+     JAVASCRIPT FILES
+     MUST STAY AT THE VERY BOTTOM
+===================================================== -->
+
+<script src="knowledge.js"></script>
+<script src="script.js"></script>
+
+
+</body>
+
+</html>
