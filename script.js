@@ -1,6 +1,7 @@
 /* =========================================================
    AI YAWE / MENYA SRHR
    COMPLETE FRONTEND SCRIPT
+   FIXED ANSWER FORMATTING
 ========================================================= */
 
 
@@ -15,21 +16,32 @@ function acceptWelcome() {
             "welcome-modal"
         );
 
-    if (!modal) {
-        return;
+    if (modal) {
+
+        modal.style.display =
+            "none";
+
+        modal.classList.add(
+            "hidden"
+        );
+
     }
 
-    /*
-       Hide the welcome message after
-       the user clicks the start button.
-    */
+    try {
 
-    modal.style.display =
-        "none";
+        localStorage.setItem(
+            "menyaWelcomeAccepted",
+            "true"
+        );
 
-    modal.classList.add(
-        "hidden"
-    );
+    } catch (error) {
+
+        console.warn(
+            "Could not save welcome preference:",
+            error
+        );
+
+    }
 
 }
 
@@ -49,23 +61,43 @@ function setupWelcomeScreen() {
         return;
     }
 
-    /*
-       IMPORTANT:
+    let accepted = false;
 
-       Always show the welcome message
-       whenever Ai Yawe is opened or refreshed.
+    try {
 
-       We intentionally do NOT use localStorage
-       here, so the welcome screen will not
-       permanently disappear.
-    */
+        accepted =
+            localStorage.getItem(
+                "menyaWelcomeAccepted"
+            ) === "true";
 
-    modal.style.display =
-        "flex";
+    } catch (error) {
 
-    modal.classList.remove(
-        "hidden"
-    );
+        console.warn(
+            "LocalStorage unavailable:",
+            error
+        );
+
+    }
+
+    if (accepted) {
+
+        modal.style.display =
+            "none";
+
+        modal.classList.add(
+            "hidden"
+        );
+
+    } else {
+
+        modal.style.display =
+            "flex";
+
+        modal.classList.remove(
+            "hidden"
+        );
+
+    }
 
 }
 
@@ -82,12 +114,10 @@ function initializeAiYawe() {
 
     setupWelcomeScreen();
 
-
     const input =
         document.getElementById(
             "question"
         );
-
 
     if (input) {
 
@@ -244,65 +274,42 @@ function showTopic(topic) {
         return;
     }
 
-
     const questions =
         topicQuestions[topic];
-
 
     if (!questions) {
         return;
     }
 
-
     let title =
         "Ibibazo";
 
-
     if (topic === "imihango") {
-
-        title =
-            "Imihango";
-
+        title = "Imihango";
     }
-
 
     if (topic === "gutwita") {
-
-        title =
-            "Gutwita";
-
+        title = "Gutwita";
     }
-
 
     if (topic === "kuboneza") {
-
         title =
             "Kuboneza urubyaro";
-
     }
-
 
     if (topic === "hiv") {
-
         title =
             "HIV na STI";
-
     }
-
 
     if (topic === "consent") {
-
         title =
             "Kwemera imibonano";
-
     }
 
-
     if (topic === "gbv") {
-
         title =
             "Ihohoterwa";
-
     }
 
 
@@ -370,7 +377,6 @@ function useTopicQuestion(question) {
         return;
     }
 
-
     input.value =
         question;
 
@@ -392,12 +398,10 @@ async function sendQuestion() {
             "question"
         );
 
-
     const answer =
         document.getElementById(
             "answer"
         );
-
 
     const sendButton =
         document.getElementById(
@@ -426,7 +430,7 @@ async function sendQuestion() {
 
 
     /* -----------------------------------------------------
-       SHOW USER QUESTION
+       REMOVE WELCOME MESSAGE
     ----------------------------------------------------- */
 
     const welcome =
@@ -434,23 +438,22 @@ async function sendQuestion() {
             ".welcome-chat"
         );
 
-
     if (welcome) {
-
         welcome.remove();
-
     }
 
+
+    /* -----------------------------------------------------
+       SHOW USER QUESTION
+    ----------------------------------------------------- */
 
     const userMessage =
         document.createElement(
             "div"
         );
 
-
     userMessage.className =
         "user-message";
-
 
     userMessage.innerHTML = `
 
@@ -461,7 +464,6 @@ async function sendQuestion() {
         </div>
 
     `;
-
 
     answer.appendChild(
         userMessage
@@ -479,15 +481,10 @@ async function sendQuestion() {
        DISABLE INPUT
     ----------------------------------------------------- */
 
-    input.disabled =
-        true;
-
+    input.disabled = true;
 
     if (sendButton) {
-
-        sendButton.disabled =
-            true;
-
+        sendButton.disabled = true;
     }
 
 
@@ -500,15 +497,12 @@ async function sendQuestion() {
             "div"
         );
 
-
     loading.className =
         "ai-message";
-
 
     loading.id =
         "ai-loading-" +
         Date.now();
-
 
     loading.innerHTML = `
 
@@ -527,16 +521,10 @@ async function sendQuestion() {
 
     `;
 
-
     answer.appendChild(
         loading
     );
 
-
-    /*
-       Scroll the loading message
-       to the visible area.
-    */
 
     scrollNewMessageToTop(
         loading
@@ -559,25 +547,18 @@ async function sendQuestion() {
             await fetch(
                 "/api/chat",
                 {
-
-                    method:
-                        "POST",
+                    method: "POST",
 
                     headers: {
-
                         "Content-Type":
                             "application/json"
-
                     },
 
                     body:
                         JSON.stringify({
-
                             question:
                                 question
-
                         })
-
                 }
             );
 
@@ -589,7 +570,6 @@ async function sendQuestion() {
 
 
         let data = {};
-
 
         try {
 
@@ -611,9 +591,7 @@ async function sendQuestion() {
         ------------------------------------------------- */
 
         if (loading) {
-
             loading.remove();
-
         }
 
 
@@ -659,7 +637,6 @@ async function sendQuestion() {
                 "div"
             );
 
-
         aiMessage.className =
             "ai-message new-ai-answer";
 
@@ -670,7 +647,7 @@ async function sendQuestion() {
                 AI
             </div>
 
-            <div>
+            <div class="ai-answer-content">
 
                 ${formatAnswer(finalAnswer)}
 
@@ -684,9 +661,9 @@ async function sendQuestion() {
         );
 
 
-        /*
-           Scroll ONLY the answer area.
-        */
+        /* -------------------------------------------------
+           POSITION NEW ANSWER
+        ------------------------------------------------- */
 
         scrollNewMessageToTop(
             aiMessage
@@ -702,9 +679,7 @@ async function sendQuestion() {
 
 
         if (loading) {
-
             loading.remove();
-
         }
 
 
@@ -712,7 +687,6 @@ async function sendQuestion() {
             document.createElement(
                 "div"
             );
-
 
         errorMessage.className =
             "ai-message new-ai-answer";
@@ -761,17 +735,11 @@ async function sendQuestion() {
        ENABLE INPUT AGAIN
     ----------------------------------------------------- */
 
-    input.disabled =
-        false;
-
+    input.disabled = false;
 
     if (sendButton) {
-
-        sendButton.disabled =
-            false;
-
+        sendButton.disabled = false;
     }
-
 
     input.focus();
 
@@ -782,15 +750,6 @@ async function sendQuestion() {
    9. NEW ANSWER SCROLLING
 ========================================================= */
 
-/*
-   This function scrolls ONLY the #answer area.
-
-   It does NOT scroll the whole webpage.
-
-   It positions the beginning of the new AI answer
-   near the top of the visible chat area.
-*/
-
 function scrollNewMessageToTop(
     message
 ) {
@@ -800,70 +759,95 @@ function scrollNewMessageToTop(
             "answer"
         );
 
-
     if (!answer || !message) {
         return;
     }
 
 
-    requestAnimationFrame(
+    setTimeout(
         function() {
 
-            requestAnimationFrame(
-                function() {
+            const answerRect =
+                answer.getBoundingClientRect();
 
-                    const answerRect =
-                        answer.getBoundingClientRect();
-
-
-                    const messageRect =
-                        message.getBoundingClientRect();
+            const messageRect =
+                message.getBoundingClientRect();
 
 
-                    const relativeTop =
-                        messageRect.top -
-                        answerRect.top;
+            const relativeTop =
+                messageRect.top -
+                answerRect.top;
 
 
-                    const target =
-                        answer.scrollTop +
-                        relativeTop -
-                        20;
+            const target =
+                answer.scrollTop +
+                relativeTop -
+                20;
 
 
-                    const maxScroll =
-                        Math.max(
-                            0,
-                            answer.scrollHeight -
-                            answer.clientHeight
-                        );
+            const maxScroll =
+                Math.max(
+                    0,
+                    answer.scrollHeight -
+                    answer.clientHeight
+                );
 
 
-                    const safeTarget =
-                        Math.max(
-                            0,
-                            Math.min(
-                                target,
-                                maxScroll
-                            )
-                        );
+            const safeTarget =
+                Math.max(
+                    0,
+                    Math.min(
+                        target,
+                        maxScroll
+                    )
+                );
 
 
-                    answer.scrollTop =
-                        safeTarget;
+            answer.scrollTo({
 
-                }
-            );
+                top:
+                    safeTarget,
 
-        }
+                behavior:
+                    "smooth"
+
+            });
+
+
+        },
+        80
     );
 
 }
 
 
 /* =========================================================
-   10. FORMAT ANSWER
+   10. FORMAT AI ANSWER
 ========================================================= */
+
+/*
+   IMPORTANT:
+
+   The AI may return either:
+
+   1. Normal Markdown
+      ### Heading
+      **bold**
+      - bullet
+
+   OR
+
+   2. HTML
+      <h3>Heading</h3>
+      <p>Paragraph</p>
+      <ul><li>Bullet</li></ul>
+
+   This function supports both.
+
+   We first sanitize the HTML so that
+   dangerous scripts and attributes cannot
+   be executed.
+*/
 
 function formatAnswer(text) {
 
@@ -877,13 +861,60 @@ function formatAnswer(text) {
     }
 
 
-    let safe =
-        escapeHTML(
-            String(text)
+    let raw =
+        String(text);
+
+
+    /*
+       Check whether the answer contains
+       HTML-like tags.
+    */
+
+    const containsHTML =
+        /<\/?[a-z][\s\S]*>/i.test(
+            raw
         );
 
 
-    /* Bold markdown */
+    /*
+       If HTML is present, sanitize it.
+    */
+
+    if (containsHTML) {
+
+        return sanitizeAnswerHTML(
+            raw
+        );
+
+    }
+
+
+    /*
+       Otherwise format Markdown/text.
+    */
+
+    let safe =
+        escapeHTML(
+            raw
+        );
+
+
+    /* Normalize line endings */
+
+    safe =
+        safe.replace(
+            /\r\n/g,
+            "\n"
+        );
+
+    safe =
+        safe.replace(
+            /\r/g,
+            "\n"
+        );
+
+
+    /* Bold */
 
     safe =
         safe.replace(
@@ -900,24 +931,64 @@ function formatAnswer(text) {
             "<h3>$1</h3>"
         );
 
-
     safe =
         safe.replace(
             /^## (.*?)$/gm,
             "<h3>$1</h3>"
         );
 
-
-    /* Bullet points */
-
     safe =
         safe.replace(
-            /^[•\-] (.*?)$/gm,
-            "<div>• $1</div>"
+            /^# (.*?)$/gm,
+            "<h3>$1</h3>"
         );
 
 
-    /* Paragraph breaks */
+    /*
+       Bullet lists
+    */
+
+    safe =
+        safe.replace(
+            /^[•\-*]\s+(.*?)$/gm,
+            "<li>$1</li>"
+        );
+
+
+    /*
+       Numbered lists
+    */
+
+    safe =
+        safe.replace(
+            /^\d+\.\s+(.*?)$/gm,
+            "<li>$1</li>"
+        );
+
+
+    /*
+       Convert consecutive <li> items
+       into an unordered list.
+    */
+
+    safe =
+        safe.replace(
+            /((?:<li>.*?<\/li>\s*)+)/gs,
+            function(match) {
+
+                return (
+                    "<ul>" +
+                    match +
+                    "</ul>"
+                );
+
+            }
+        );
+
+
+    /*
+       Paragraphs
+    */
 
     safe =
         safe.replace(
@@ -926,7 +997,9 @@ function formatAnswer(text) {
         );
 
 
-    /* Single line breaks */
+    /*
+       Single line breaks
+    */
 
     safe =
         safe.replace(
@@ -951,10 +1024,233 @@ function formatAnswer(text) {
 
 
 /* =========================================================
-   11. ESCAPE HTML
+   11. SAFE HTML SANITIZER
 ========================================================= */
 
-function escapeHTML(text) {
+function sanitizeAnswerHTML(
+    html
+) {
+
+    const template =
+        document.createElement(
+            "template"
+        );
+
+
+    template.innerHTML =
+        html;
+
+
+    /*
+       Tags that Ai Yawe is allowed
+       to display.
+    */
+
+    const allowedTags = new Set([
+
+        "H1",
+        "H2",
+        "H3",
+        "H4",
+
+        "P",
+
+        "BR",
+
+        "STRONG",
+        "B",
+        "EM",
+        "I",
+
+        "UL",
+        "OL",
+        "LI",
+
+        "DIV",
+
+        "SPAN",
+
+        "BLOCKQUOTE",
+
+        "HR"
+
+    ]);
+
+
+    /*
+       Attributes that are allowed.
+
+       We intentionally do NOT allow
+       onclick, onerror, javascript,
+       style, or other dangerous
+       event attributes.
+    */
+
+    const allowedAttributes =
+        new Set([
+
+            "class"
+
+        ]);
+
+
+    function cleanNode(
+        node
+    ) {
+
+        /*
+           Remove comments.
+        */
+
+        if (
+            node.nodeType ===
+            Node.COMMENT_NODE
+        ) {
+
+            node.remove();
+
+            return;
+
+        }
+
+
+        /*
+           Text nodes are safe.
+        */
+
+        if (
+            node.nodeType !==
+            Node.ELEMENT_NODE
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+           Remove dangerous tags.
+        */
+
+        if (
+            !allowedTags.has(
+                node.tagName
+            )
+        ) {
+
+            /*
+               Keep the text inside
+               the tag, but remove
+               the actual tag.
+            */
+
+            const parent =
+                node.parentNode;
+
+            if (parent) {
+
+                while (
+                    node.firstChild
+                ) {
+
+                    parent.insertBefore(
+                        node.firstChild,
+                        node
+                    );
+
+                }
+
+                parent.removeChild(
+                    node
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        /*
+           Remove all attributes
+           except approved ones.
+        */
+
+        Array.from(
+            node.attributes
+        ).forEach(
+            function(attribute) {
+
+                if (
+                    !allowedAttributes.has(
+                        attribute.name.toLowerCase()
+                    )
+                ) {
+
+                    node.removeAttribute(
+                        attribute.name
+                    );
+
+                }
+
+            }
+        );
+
+
+        /*
+           Clean child nodes.
+        */
+
+        Array.from(
+            node.childNodes
+        ).forEach(
+            cleanNode
+        );
+
+    }
+
+
+    Array.from(
+        template.content.childNodes
+    ).forEach(
+        cleanNode
+    );
+
+
+    /*
+       Return safe HTML.
+    */
+
+    return `
+
+        <div class="answer-text">
+
+            ${template.innerHTML}
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   12. ESCAPE HTML
+========================================================= */
+
+function escapeHTML(
+    text
+) {
+
+    if (
+        text === null ||
+        text === undefined
+    ) {
+
+        return "";
+
+    }
+
 
     const div =
         document.createElement(
@@ -972,7 +1268,7 @@ function escapeHTML(text) {
 
 
 /* =========================================================
-   12. CLEAR CHAT
+   13. CLEAR CHAT
 ========================================================= */
 
 function clearChat() {
@@ -981,7 +1277,6 @@ function clearChat() {
         document.getElementById(
             "answer"
         );
-
 
     if (!answer) {
         return;
@@ -1015,31 +1310,27 @@ function clearChat() {
     `;
 
 
-    answer.scrollTop =
-        0;
+    answer.scrollTop = 0;
 
 }
 
 
 /* =========================================================
-   13. NEW CHAT
+   14. NEW CHAT
 ========================================================= */
 
 function newChat() {
 
     clearChat();
 
-
     const input =
         document.getElementById(
             "question"
         );
 
-
     if (input) {
 
-        input.value =
-            "";
+        input.value = "";
 
         input.focus();
 
@@ -1049,44 +1340,35 @@ function newChat() {
 
 
 /* =========================================================
-   14. MAKE FUNCTIONS AVAILABLE
+   15. MAKE FUNCTIONS AVAILABLE
 ========================================================= */
 
 window.acceptWelcome =
     acceptWelcome;
 
-
 window.setupWelcomeScreen =
     setupWelcomeScreen;
-
 
 window.showTopic =
     showTopic;
 
-
 window.useTopicQuestion =
     useTopicQuestion;
-
 
 window.sendQuestion =
     sendQuestion;
 
-
 window.clearChat =
     clearChat;
-
 
 window.newChat =
     newChat;
 
-
 window.formatAnswer =
     formatAnswer;
 
-
 window.escapeHTML =
     escapeHTML;
-
 
 window.scrollNewMessageToTop =
     scrollNewMessageToTop;
