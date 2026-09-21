@@ -1,85 +1,151 @@
 // ============================================================
-// MENYA SRHR AI - SERVER
+// AI YAWE / MENYA SRHR AI
+// COMPLETE BACKEND SERVER
 // ============================================================
 
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const OpenAI = require("openai");
+const path = require("path");
 
-// Load environment variables
-dotenv.config();
-
-// Load knowledge base
-let knowledgeBase = [];
-
-try {
-    const kb = require("./knowledge.js");
-
-    if (Array.isArray(kb)) {
-        knowledgeBase = kb;
-    } else if (Array.isArray(kb.knowledgeBase)) {
-        knowledgeBase = kb.knowledgeBase;
-    } else if (Array.isArray(kb.MENYA_KNOWLEDGE_BASE)) {
-        knowledgeBase = kb.MENYA_KNOWLEDGE_BASE;
-    }
-
-    console.log("Knowledge base loaded: " + knowledgeBase.length + " entries");
-} catch (error) {
-    console.error("Could not load knowledge.js");
-    console.error(error.message);
-}
 
 // ============================================================
-// APP SETUP
+// ENVIRONMENT
+// ============================================================
+
+dotenv.config();
+
+
+// ============================================================
+// APP
 // ============================================================
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+const PORT =
+    process.env.PORT || 3000;
+
+const MODEL =
+    "gpt-5.6-luna";
+
+
+// ============================================================
+// MIDDLEWARE
+// ============================================================
 
 app.use(cors());
-app.use(express.json());
-app.use(express.static(__dirname));
+
+app.use(
+    express.json({
+        limit: "1mb"
+    })
+);
+
+app.use(
+    express.static(__dirname)
+);
+
 
 // ============================================================
 // OPENAI
 // ============================================================
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
+let openai = null;
 
 if (process.env.OPENAI_API_KEY) {
-    console.log("OpenAI: CONNECTED");
+
+    openai =
+        new OpenAI({
+            apiKey:
+                process.env.OPENAI_API_KEY
+        });
+
+    console.log(
+        "🤖 OpenAI: CONNECTED"
+    );
+
 } else {
-    console.log("OpenAI: API KEY NOT FOUND");
+
+    console.log(
+        "⚠️ OpenAI API key was not found."
+    );
+
 }
 
+
 // ============================================================
-// TEXT NORMALIZATION
+// KNOWLEDGE BASE
 // ============================================================
 
-function normalizeText(text) {
-    if (!text) return "";
+let knowledgeBase = [];
 
-    return text
-        .toString()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^\p{L}\p{N}\s']/gu, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+try {
+
+    const knowledge =
+        require("./knowledge.js");
+
+
+    if (
+        Array.isArray(knowledge)
+    ) {
+
+        knowledgeBase =
+            knowledge;
+
+    } else if (
+        Array.isArray(
+            knowledge.knowledgeBase
+        )
+    ) {
+
+        knowledgeBase =
+            knowledge.knowledgeBase;
+
+    } else if (
+        Array.isArray(
+            knowledge.MENYA_KNOWLEDGE_BASE
+        )
+    ) {
+
+        knowledgeBase =
+            knowledge.MENYA_KNOWLEDGE_BASE;
+
+    }
+
+
+    console.log(
+        `✅ Knowledge base loaded: ${knowledgeBase.length} entries`
+    );
+
+
+} catch (error) {
+
+    console.log(
+        "❌ Could not load knowledge.js"
+    );
+
+    console.log(
+        error.message
+    );
+
 }
+
 
 // ============================================================
 // LANGUAGE DETECTION
 // ============================================================
 
 function detectLanguage(question) {
-    const text = normalizeText(question);
+
+    const text =
+        String(question)
+            .toLowerCase()
+            .trim();
+
 
     const kinyarwandaWords = [
+
         "ni iki",
         "ni izihe",
         "nizihe",
@@ -111,7 +177,6 @@ function detectLanguage(question) {
         "ubuzima bwimyororokere",
         "kuboneza urubyaro",
         "agakingirizo",
-        "agakingirizo",
         "ibimenyetso",
         "ububabare",
         "amaraso",
@@ -125,41 +190,115 @@ function detectLanguage(question) {
         "byagenda",
         "nshobora",
         "mfite",
-        "wakwibanda",
-        "mbese"
+        "mbese",
+        "kwemera",
+        "ihohoterwa",
+        "urubyaro",
+        "gusama",
+        "gusama inda",
+        "kwipimisha",
+        "umubiri",
+        "uburenganzira",
+        "gukingira",
+        "kurinda",
+        "kwirinda",
+        "ubufasha",
+        "muganga",
+        "ibinini",
+        "ururenda",
+        "hiv yandura",
+        "hiv",
+        "stI",
+        "pep",
+        "prep"
+
     ];
 
-    for (const word of kinyarwandaWords) {
-        if (text.includes(word)) {
-            return "kinyarwanda";
+
+    let score = 0;
+
+
+    for (
+        const word
+        of kinyarwandaWords
+    ) {
+
+        if (
+            text.includes(word)
+        ) {
+
+            score++;
+
         }
+
     }
 
-    // Common Kinyarwanda question structure
-    if (
-        text.startsWith("ni ") ||
-        text.startsWith("ese ") ||
-        text.startsWith("ninde ") ||
-        text.startsWith("nizihe ") ||
-        text.startsWith("nakora ") ||
-        text.startsWith("nshobora ")
+
+    const kinyarwandaStarts = [
+
+        "ni ",
+        "ese ",
+        "ninde ",
+        "nizihe ",
+        "nakora ",
+        "nshobora ",
+        "ese nshobora ",
+        "ese nakora ",
+        "ni ryari ",
+        "ni gute ",
+        "gute ",
+        "ute "
+
+    ];
+
+
+    for (
+        const start
+        of kinyarwandaStarts
     ) {
-        return "kinyarwanda";
+
+        if (
+            text.startsWith(start)
+        ) {
+
+            score += 2;
+
+        }
+
     }
+
+
+    if (score >= 1) {
+
+        return "kinyarwanda";
+
+    }
+
 
     return "english";
+
 }
 
+
 // ============================================================
-// GET ANSWER FROM KNOWLEDGE BASE
+// GET KNOWLEDGE ANSWER
 // ============================================================
 
 function getKnowledgeAnswer(item) {
-    if (!item) return null;
 
-    if (typeof item === "string") {
-        return item;
+    if (!item) {
+        return null;
     }
+
+
+    if (
+        typeof item === "string"
+    ) {
+
+        return item;
+
+    }
+
 
     return (
         item.answer ||
@@ -168,220 +307,218 @@ function getKnowledgeAnswer(item) {
         item.text ||
         null
     );
+
 }
 
-// ============================================================
-// FIND KNOWLEDGE ITEM BY ID
-// ============================================================
-
-function findKnowledgeById(id) {
-    if (!id) return null;
-
-    return knowledgeBase.find(item => {
-        return item && item.id === id;
-    });
-}
 
 // ============================================================
-// SPECIFIC INTENT DETECTION
-// ============================================================
-
-function detectSpecificIntent(question) {
-    const text = normalizeText(question);
-
-    // STI - What is it?
-    if (
-        text.includes("sti ni iki") ||
-        text.includes("sti niki") ||
-        text.includes("indwara zandurira mu mibonano ni izihe") ||
-        text.includes("nizihe ndwara zandurira mumibonano") ||
-        text.includes("nizihe ndwara zandurira mu mibonano") ||
-        text.includes("ni izihe ndwara zandurira mu mibonano") ||
-        text.includes("indwara zandurira mumibonano ni izihe") ||
-        text.includes("indwara zandurira mu mibonano mpuzabitsina")
-    ) {
-        return [
-            "sti_ni_iki",
-            "sti_signs",
-            "sti_testing"
-        ];
-    }
-
-    // STI symptoms
-    if (
-        text.includes("ibimenyetso bya sti") ||
-        text.includes("ibimenyetso byindwara zandurira") ||
-        text.includes("sti ibimenyetso") ||
-        text.includes("ni ibihe bimenyetso bya sti")
-    ) {
-        return [
-            "sti_signs",
-            "sti_testing"
-        ];
-    }
-
-    // STI testing
-    if (
-        text.includes("napimisha sti") ||
-        text.includes("napima sti") ||
-        text.includes("kwipimisha sti") ||
-        text.includes("kwipima sti") ||
-        text.includes("test ya sti") ||
-        text.includes("ipimwa ite sti")
-    ) {
-        return [
-            "sti_testing",
-            "sti_signs"
-        ];
-    }
-
-    return [];
-}
-
-// ============================================================
-// SEARCH KNOWLEDGE BASE
+// KNOWLEDGE BASE SEARCH
 // ============================================================
 
 function searchKnowledge(question) {
-    const normalizedQuestion = normalizeText(question);
 
-    if (!normalizedQuestion) {
+    if (
+        !Array.isArray(knowledgeBase) ||
+        knowledgeBase.length === 0
+    ) {
+
+        return null;
+
+    }
+
+
+    const questionText =
+        question
+            .toLowerCase()
+            .trim();
+
+
+    if (!questionText) {
         return null;
     }
 
-    // First: specific intent
-    const intentIds = detectSpecificIntent(question);
 
-    for (const id of intentIds) {
-        const item = findKnowledgeById(id);
+    const words =
+        questionText
+            .split(/\s+/)
+            .filter(
+                word =>
+                    word.length > 2
+            );
 
-        if (item) {
-            const answer = getKnowledgeAnswer(item);
 
-            if (answer) {
-                return {
-                    item,
-                    answer,
-                    score: 100
-                };
-            }
-        }
-    }
+    let bestMatch = null;
 
-    // Normal knowledge search
-    let bestItem = null;
     let bestScore = 0;
 
-    const questionWords = normalizedQuestion
-        .split(/\s+/)
-        .filter(word => word.length >= 2);
 
-    for (const item of knowledgeBase) {
-        if (!item) continue;
+    for (
+        const item
+        of knowledgeBase
+    ) {
 
-        const questionText = normalizeText(item.question || "");
-        const titleText = normalizeText(item.title || "");
-        const topicText = normalizeText(item.topic || "");
-        const answerText = normalizeText(getKnowledgeAnswer(item) || "");
-
-        let keywordsText = "";
-
-        if (Array.isArray(item.keywords)) {
-            keywordsText = item.keywords
-                .map(keyword => normalizeText(keyword))
-                .join(" ");
-        } else if (typeof item.keywords === "string") {
-            keywordsText = normalizeText(item.keywords);
+        if (!item) {
+            continue;
         }
 
+
         const searchableText = [
-            questionText,
-            titleText,
-            topicText,
-            keywordsText,
-            answerText
-        ].join(" ");
+
+            item.id,
+            item.question,
+            item.title,
+            item.topic,
+            item.keywords,
+            item.answer,
+            item.content,
+            item.response,
+            item.text
+
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+
+        if (!searchableText) {
+            continue;
+        }
+
 
         let score = 0;
 
-        // Exact full question match
-        if (questionText === normalizedQuestion) {
-            score += 100;
-        }
 
-        // Exact keyword/phrase match
+        /*
+           Exact question.
+        */
+
         if (
-            keywordsText.includes(normalizedQuestion) &&
-            normalizedQuestion.length > 5
+            searchableText.includes(
+                questionText
+            )
         ) {
-            score += 50;
+
+            score += 10;
+
         }
 
-        // Question phrase contained in searchable text
-        if (
-            normalizedQuestion.length > 8 &&
-            searchableText.includes(normalizedQuestion)
-        ) {
-            score += 30;
-        }
 
-        // Word matching
-        for (const word of questionWords) {
-            if (searchableText.includes(word)) {
-                score += 2;
+        /*
+           Individual words.
+        */
+
+        for (
+            const word
+            of words
+        ) {
+
+            if (
+                searchableText.includes(
+                    word
+                )
+            ) {
+
+                score++;
+
             }
+
         }
 
-        // Important phrase bonuses
-        if (
-            normalizedQuestion.includes("sti") &&
-            searchableText.includes("sti")
-        ) {
-            score += 8;
-        }
+
+        /*
+           Keywords.
+        */
 
         if (
-            normalizedQuestion.includes("mibonano") &&
-            searchableText.includes("mibonano")
+            Array.isArray(item.keywords)
         ) {
-            score += 8;
+
+            for (
+                const keyword
+                of item.keywords
+            ) {
+
+                if (
+                    questionText.includes(
+                        String(keyword)
+                            .toLowerCase()
+                    )
+                ) {
+
+                    score += 5;
+
+                }
+
+            }
+
         }
+
 
         if (
-            normalizedQuestion.includes("indwara") &&
-            searchableText.includes("indwara")
+            score > bestScore
         ) {
-            score += 5;
+
+            bestScore =
+                score;
+
+            bestMatch =
+                item;
+
         }
 
-        if (score > bestScore) {
-            bestScore = score;
-            bestItem = item;
-        }
     }
 
-    // Require a meaningful match
-    if (bestItem && bestScore >= 4) {
+
+    if (
+        bestMatch &&
+        bestScore >= 4
+    ) {
+
         return {
-            item: bestItem,
-            answer: getKnowledgeAnswer(bestItem),
-            score: bestScore
+
+            item:
+                bestMatch,
+
+            answer:
+                getKnowledgeAnswer(
+                    bestMatch
+                ),
+
+            score:
+                bestScore
+
         };
+
     }
+
 
     return null;
+
 }
 
+
 // ============================================================
-// DETECT ENGLISH OUTPUT
+// DETECT ENGLISH
 // ============================================================
 
 function looksEnglish(text) {
-    if (!text) return false;
 
-    const normalized = normalizeText(text);
+    if (
+        !text ||
+        typeof text !== "string"
+    ) {
+
+        return false;
+
+    }
+
+
+    const lower =
+        text.toLowerCase();
+
 
     const englishWords = [
+
         "the",
         "are",
         "is",
@@ -401,240 +538,842 @@ function looksEnglish(text) {
         "symptoms",
         "testing",
         "health",
-        "contact"
+        "contact",
+        "through",
+        "when",
+        "from",
+        "with",
+        "during",
+        "blood",
+        "mother",
+        "child",
+        "unprotected",
+        "spread",
+        "ways",
+        "exposed",
+        "body",
+        "fluids",
+        "especially",
+        "sharing",
+        "needles",
+        "equipment",
+        "infected",
+        "transmission"
+
     ];
+
 
     let matches = 0;
 
-    for (const word of englishWords) {
-        const regex = new RegExp("\\b" + word + "\\b", "i");
 
-        if (regex.test(normalized)) {
+    for (
+        const word
+        of englishWords
+    ) {
+
+        const regex =
+            new RegExp(
+                "\\b" +
+                word +
+                "\\b",
+                "i"
+            );
+
+
+        if (
+            regex.test(lower)
+        ) {
+
             matches++;
+
         }
+
     }
 
+
     return matches >= 3;
+
 }
+
 
 // ============================================================
 // SYSTEM INSTRUCTIONS
 // ============================================================
 
 function buildSystemInstructions(language) {
-    if (language === "kinyarwanda") {
+
+    if (
+        language === "kinyarwanda"
+    ) {
+
         return `
-Uri Menya SRHR AI, umufasha utanga amakuru yizewe ku buzima bw'imyororokere n'imibonano mpuzabitsina.
+
+Uri Ai Yawe / Menya SRHR AI.
+
+Uri umufasha utanga amakuru yizewe ku buzima bw'imyororokere,
+ubuzima bw'imibonano mpuzabitsina, uburenganzira bwa muntu
+n'uburinganire.
+
+Intego yawe ni ugufasha cyane cyane urubyiruko rwo mu Rwanda
+kubona amakuru yumvikana, yizewe kandi yubaha umuntu.
 
 AMATEGEKO AKOMEYE:
 
-1. NIBA UMUKORESHAJI ABASHE MU KINYARWANDA, SUBIZA MU KINYARWANDA GUSA.
-2. NTUKORESHE IGISUBIZO CY'ICYONGEREZA KU IKIBAZO CYA KINYARWANDA.
-3. Koresha Kinyarwanda cyoroshye kandi gisobanutse.
-4. Ntugaseke cyangwa ngo ucire urubanza umukoresha.
-5. Tanga amakuru yizewe kandi ashingiye ku buzima.
-6. Ntutange diagnosis y'indwara nk'aho ari muganga wasuzumye umuntu.
-7. Niba ikibazo gisaba ubufasha bwihutirwa, saba umuntu gushaka ubufasha bw'abaganga cyangwa serivisi z'ubutabazi.
-8. Ku bibazo bya GBV, saba umuntu gushaka ubufasha bwizewe kandi wubahirize umutekano we.
-9. Ku bijyanye na consent, garagaza ko kwemera bigomba kuba ku bushake kandi bishobora kuvaho.
-10. Ntutange amabwiriza ashobora gushyira umuntu mu kaga.
-11. Ntuhimbe amakuru.
-12. Niba utazi igisubizo neza, vuga ko udafite amakuru ahagije.
-13. Subiza mu buryo bugufi kandi bwumvikana.
-14. Koresha bullets cyangwa paragraphs ngufi igihe bikwiye.
+1. NIBA UMUKORESHAJI ABASHE MU KINYARWANDA,
+   SUBIZA MU KINYARWANDA GUSA.
 
-IGISUBIZO CYAWE GITEGEREZWA KUBA MU KINYARWANDA GUSA.
+2. NTUGIRE IGISUBIZO CYAWE MU CYONGEREZA.
+
+3. HIV, AIDS, STI, HPV, PEP, PrEP, ART na ARV
+   bishobora kuguma uko byanditse.
+
+4. Koresha Kinyarwanda cyoroshye kandi gisobanutse.
+
+5. Ntukaseke cyangwa ngo ucire urubanza umukoresha.
+
+6. Tanga amakuru yizewe ashingiye ku bumenyi bw'ubuzima.
+
+7. Ntukihimbire amakuru cyangwa imibare.
+
+8. Ntukore diagnosis nk'aho wasuzumye umuntu.
+
+9. Niba ikibazo gishobora gushyira ubuzima mu kaga,
+   shishikariza umuntu gushaka ubufasha bw'abaganga.
+
+10. Ku bibazo bya GBV cyangwa sexual violence,
+    ntushinje uwahohotewe.
+
+11. Consent igomba kuba ku bushake,
+    isobanutse kandi ishobora gukurwaho.
+
+12. Ntutange prescription y'imiti.
+
+13. Wubahe abantu bose.
+
+14. Niba utazi igisubizo neza,
+    vuga ko udafite amakuru ahagije.
+
+15. Subiza mu buryo bugufi ariko bufite ibisobanuro bihagije.
+
+16. Iyo bishoboka, koresha bullets na paragraphs ngufi.
+
+17. IGISUBIZO CYAWE GITEGEREZWA KUBA MU KINYARWANDA GUSA.
+
 `;
+
     }
 
+
     return `
-You are Menya SRHR AI, a respectful sexual and reproductive health information assistant.
 
-Answer in clear English.
+You are Ai Yawe / Menya SRHR AI.
 
-Provide reliable health information.
+You provide reliable and respectful information about
+sexual and reproductive health.
+
+Use clear and simple language.
+
+If the user asks in English, answer in English.
+
+Do not judge the user.
+
+Do not invent medical facts.
+
 Do not diagnose users.
-Do not shame or judge.
-Respect consent and bodily autonomy.
-For urgent situations, recommend appropriate professional or emergency help.
-For GBV situations, prioritize safety and trusted support.
-Do not fabricate information.
-If you are unsure, say so.
+
+For urgent situations, encourage appropriate medical care.
+
+For GBV or sexual violence, respond respectfully.
+
+Consent must be voluntary and can be withdrawn.
+
+Do not prescribe medication.
+
+If you do not know something, say so.
+
 Keep answers clear and reasonably concise.
+
 `;
+
 }
 
+
 // ============================================================
-// FORCE KINYARWANDA
+// TRANSLATE ENGLISH → KINYARWANDA
 // ============================================================
 
-async function forceKinyarwanda(originalQuestion, englishAnswer) {
+async function forceKinyarwanda(
+    originalQuestion,
+    answer
+) {
+
+    if (
+        !openai ||
+        !answer
+    ) {
+
+        return "";
+
+    }
+
+
     try {
-        const response = await openai.responses.create({
-            model: "gpt-5.6-luna",
-            instructions: `
-Hindura igisubizo gikurikira mu Kinyarwanda cyumvikana neza.
 
-IKIBAZO CY'UMUKORESHAJI:
+        const response =
+            await openai.responses.create({
+
+                model:
+                    MODEL,
+
+                instructions: `
+
+Uri umusemuzi wihariye wa Ai Yawe.
+
+Hindura igisubizo kiri hasi ugishyire
+MU KINYARWANDA GUSA.
+
+IKIBAZO:
+
 ${originalQuestion}
 
 IGISUBIZO:
-${englishAnswer}
+
+${answer}
 
 AMATEGEKO:
-- Subiza MU KINYARWANDA GUSA.
-- Ntusige interuro z'Icyongereza keretse amazina y'indwara cyangwa amagambo ya siyansi bidakwiye guhindurwa.
-- Ntuhindure igisobanuro cy'igisubizo.
-- Koresha amagambo yoroshye.
+
+- Koresha Kinyarwanda gusa.
+- Ntusige interuro z'Icyongereza.
+- Rinda ukuri kw'ubuvuzi.
+- HIV, AIDS, STI, HPV, PEP, PrEP, ART na ARV
+  bishobora kuguma uko biri.
+- Niba igisubizo kirimo HTML,
+  RINDA HTML tags.
+- Hindura amagambo ari imbere muri HTML gusa.
+- Ntukongeremo Markdown.
+- Ntukongeremo ibisobanuro by'uko wahinduye.
+- Garura igisubizo gusa.
+
 `,
-            input: englishAnswer
-        });
 
-        return response.output_text;
+                input:
+                    "QUESTION:\n" +
+                    originalQuestion +
+                    "\n\nANSWER:\n" +
+                    answer
+
+            });
+
+
+        const translated =
+            (
+                response.output_text ||
+                ""
+            ).trim();
+
+
+        if (!translated) {
+            return "";
+        }
+
+
+        return translated;
+
+
     } catch (error) {
-        console.error("Kinyarwanda translation error:", error.message);
 
-        return englishAnswer;
+        console.error(
+            "❌ Kinyarwanda translation error:",
+            error.message
+        );
+
+        return "";
+
     }
+
 }
+
+
+// ============================================================
+// GENERATE DIRECTLY IN KINYARWANDA
+// ============================================================
+
+async function generateKinyarwandaAnswer(
+    question
+) {
+
+    if (!openai) {
+        return "";
+    }
+
+
+    try {
+
+        const response =
+            await openai.responses.create({
+
+                model:
+                    MODEL,
+
+                instructions:
+                    buildSystemInstructions(
+                        "kinyarwanda"
+                    ),
+
+                input:
+                    question
+
+            });
+
+
+        const answer =
+            (
+                response.output_text ||
+                ""
+            ).trim();
+
+
+        if (!answer) {
+            return "";
+        }
+
+
+        return answer;
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Kinyarwanda generation error:",
+            error.message
+        );
+
+        return "";
+
+    }
+
+}
+
+
+// ============================================================
+// FINAL KINYARWANDA ENFORCEMENT
+// ============================================================
+
+async function ensureKinyarwanda(
+    question,
+    answer
+) {
+
+    if (!answer) {
+
+        return (
+            "Mbabarira, nta gisubizo cyabonetse."
+        );
+
+    }
+
+
+    /*
+       If the answer is already Kinyarwanda,
+       leave it alone.
+    */
+
+    if (
+        !looksEnglish(answer)
+    ) {
+
+        return answer;
+
+    }
+
+
+    console.log(
+        "🌍 English answer detected."
+    );
+
+
+    /*
+       FIRST ATTEMPT:
+       Translate the existing answer.
+    */
+
+    const translated =
+        await forceKinyarwanda(
+            question,
+            answer
+        );
+
+
+    if (
+        translated &&
+        !looksEnglish(translated)
+    ) {
+
+        console.log(
+            "✅ Translation produced Kinyarwanda."
+        );
+
+        return translated;
+
+    }
+
+
+    /*
+       SECOND ATTEMPT:
+       Generate a completely new answer
+       directly in Kinyarwanda.
+    */
+
+    console.log(
+        "🔄 Generating fresh Kinyarwanda answer..."
+    );
+
+
+    const fresh =
+        await generateKinyarwandaAnswer(
+            question
+        );
+
+
+    /*
+       IMPORTANT:
+
+       The old code accepted the fresh answer
+       without checking it.
+
+       This version checks it again.
+    */
+
+    if (
+        fresh &&
+        !looksEnglish(fresh)
+    ) {
+
+        console.log(
+            "✅ Fresh answer confirmed as Kinyarwanda."
+        );
+
+        return fresh;
+
+    }
+
+
+    /*
+       THIRD SAFETY:
+
+       Never send English to a Kinyarwanda user.
+    */
+
+    console.log(
+        "⚠️ Could not produce a confirmed Kinyarwanda answer."
+    );
+
+
+    return (
+        "Mbabarira, ubu sinashoboye kubona " +
+        "igisubizo gihagije mu Kinyarwanda. " +
+        "Ongera ugerageze nyuma."
+    );
+
+}
+
+
+// ============================================================
+// HOME PAGE
+// ============================================================
+
+app.get(
+    "/",
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                __dirname,
+                "index.html"
+            )
+        );
+
+    }
+);
+
 
 // ============================================================
 // HEALTH CHECK
 // ============================================================
 
-app.get("/api/health", (req, res) => {
-    res.json({
-        status: "ok",
-        openai: !!process.env.OPENAI_API_KEY,
-        knowledgeBase: knowledgeBase.length
-    });
-});
+app.get(
+    "/api/health",
+    (req, res) => {
+
+        res.json({
+
+            status:
+                "ok",
+
+            service:
+                "Ai Yawe / Menya SRHR AI",
+
+            openai:
+                !!openai,
+
+            model:
+                MODEL,
+
+            knowledgeBaseEntries:
+                knowledgeBase.length
+
+        });
+
+    }
+);
+
 
 // ============================================================
 // CHAT API
 // ============================================================
 
-app.post("/api/chat", async (req, res) => {
-    try {
-        const question = req.body.question;
+app.post(
+    "/api/chat",
+    async (req, res) => {
 
-        if (!question || typeof question !== "string") {
-            return res.status(400).json({
-                error: "Question is required."
-            });
-        }
+        try {
 
-        const cleanQuestion = question.trim();
+            const question =
+                req.body.question;
 
-        console.log("");
-        console.log("User:", cleanQuestion);
 
-        const language = detectLanguage(cleanQuestion);
+            /* ------------------------------------------------
+               VALIDATE
+            ------------------------------------------------ */
 
-        console.log("Detected language:", language);
-
-        // ====================================================
-        // SEARCH LOCAL KNOWLEDGE BASE FIRST
-        // ====================================================
-
-        const knowledgeResult = searchKnowledge(cleanQuestion);
-
-        if (knowledgeResult && knowledgeResult.answer) {
-            let answer = knowledgeResult.answer;
-
-            // If user asked in Kinyarwanda but KB somehow returned
-            // English, translate it.
             if (
-                language === "kinyarwanda" &&
-                looksEnglish(answer)
+                !question ||
+                typeof question !== "string"
             ) {
-                console.log("KB answer appears English. Translating...");
-                answer = await forceKinyarwanda(
-                    cleanQuestion,
-                    answer
-                );
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success:
+                            false,
+
+                        error:
+                            "Nta kibazo cyatanzwe."
+
+                    });
+
             }
 
+
+            const cleanQuestion =
+                question.trim();
+
+
+            if (!cleanQuestion) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        success:
+                            false,
+
+                        error:
+                            "Andika ikibazo mbere yo kohereza."
+
+                    });
+
+            }
+
+
+            console.log("");
             console.log(
-                "Source: knowledge-base | Score:",
-                knowledgeResult.score
+                "=============================================="
             );
+            console.log(
+                "👤 USER:",
+                cleanQuestion
+            );
+
+
+            /* ------------------------------------------------
+               LANGUAGE
+            ------------------------------------------------ */
+
+            const language =
+                detectLanguage(
+                    cleanQuestion
+                );
+
+
+            console.log(
+                "🌍 LANGUAGE:",
+                language
+            );
+
+
+            /* ------------------------------------------------
+               KNOWLEDGE BASE
+            ------------------------------------------------ */
+
+            const knowledgeResult =
+                searchKnowledge(
+                    cleanQuestion
+                );
+
+
+            if (
+                knowledgeResult &&
+                knowledgeResult.answer
+            ) {
+
+                console.log(
+                    "📚 Knowledge base match:",
+                    knowledgeResult.item.id ||
+                    "unknown"
+                );
+
+
+                let answer =
+                    knowledgeResult.answer;
+
+
+                /*
+                   VERY IMPORTANT:
+
+                   Kinyarwanda question =
+                   Kinyarwanda answer.
+
+                   This applies even when the
+                   knowledge base answer itself
+                   is English.
+                */
+
+                if (
+                    language === "kinyarwanda"
+                ) {
+
+                    answer =
+                        await ensureKinyarwanda(
+                            cleanQuestion,
+                            answer
+                        );
+
+                }
+
+
+                console.log(
+                    "✅ Returning knowledge-base answer."
+                );
+
+
+                return res.json({
+
+                    success:
+                        true,
+
+                    answer:
+                        answer,
+
+                    source:
+                        "knowledge-base",
+
+                    language:
+                        language
+
+                });
+
+            }
+
+
+            /* ------------------------------------------------
+               OPENAI REQUIRED
+            ------------------------------------------------ */
+
+            if (!openai) {
+
+                return res
+                    .status(503)
+                    .json({
+
+                        success:
+                            false,
+
+                        error:
+                            "Ai Yawe ntabwo iri connected kuri OpenAI. Reba OPENAI_API_KEY muri .env."
+
+                    });
+
+            }
+
+
+            /* ------------------------------------------------
+               OPENAI
+            ------------------------------------------------ */
+
+            console.log(
+                "🤖 Asking OpenAI..."
+            );
+
+
+            const response =
+                await openai.responses.create({
+
+                    model:
+                        MODEL,
+
+                    instructions:
+                        buildSystemInstructions(
+                            language
+                        ),
+
+                    input:
+                        cleanQuestion
+
+                });
+
+
+            let answer =
+                (
+                    response.output_text ||
+                    ""
+                ).trim();
+
+
+            if (!answer) {
+
+                return res
+                    .status(500)
+                    .json({
+
+                        success:
+                            false,
+
+                        error:
+                            "AI ntiyagaruye igisubizo."
+
+                    });
+
+            }
+
+
+            /* ------------------------------------------------
+               FINAL LANGUAGE CHECK
+            ------------------------------------------------ */
+
+            if (
+                language === "kinyarwanda"
+            ) {
+
+                answer =
+                    await ensureKinyarwanda(
+                        cleanQuestion,
+                        answer
+                    );
+
+            }
+
+
+            console.log(
+                "✅ AI answered."
+            );
+
+
+            console.log(
+                "=============================================="
+            );
+            console.log("");
+
 
             return res.json({
-                answer,
-                source: "knowledge-base"
+
+                success:
+                    true,
+
+                answer:
+                    answer,
+
+                source:
+                    "openai",
+
+                language:
+                    language
+
             });
-        }
 
-        // ====================================================
-        // OPENAI FALLBACK
-        // ====================================================
 
-        if (!process.env.OPENAI_API_KEY) {
-            return res.status(503).json({
-                error: "OpenAI API key is not configured."
-            });
-        }
+        } catch (error) {
 
-        console.log("No strong KB match. Asking OpenAI...");
-
-        const response = await openai.responses.create({
-            model: "gpt-5.6-luna",
-            instructions: buildSystemInstructions(language),
-            input: cleanQuestion
-        });
-
-        let answer = response.output_text;
-
-        // ====================================================
-        // FINAL LANGUAGE SAFETY CHECK
-        // ====================================================
-
-        if (
-            language === "kinyarwanda" &&
-            looksEnglish(answer)
-        ) {
-            console.log(
-                "OpenAI returned English for Kinyarwanda question."
+            console.error("");
+            console.error(
+                "❌ CHAT ERROR:"
+            );
+            console.error(
+                error
             );
 
-            console.log("Converting answer to Kinyarwanda...");
 
-            answer = await forceKinyarwanda(
-                cleanQuestion,
-                answer
-            );
+            return res
+                .status(500)
+                .json({
+
+                    success:
+                        false,
+
+                    error:
+                        "Habaye ikibazo mu kubona igisubizo. Ongera ugerageze nyuma."
+
+                });
+
         }
 
-        console.log("Source: openai");
-
-        return res.json({
-            answer,
-            source: "openai"
-        });
-
-    } catch (error) {
-        console.error("");
-        console.error("CHAT ERROR:");
-        console.error(error);
-
-        return res.status(500).json({
-            error: "Something went wrong while processing your question."
-        });
     }
-});
+);
+
 
 // ============================================================
 // START SERVER
 // ============================================================
 
-app.listen(PORT, () => {
-    console.log("");
-    console.log("==============================================");
-    console.log("MENYA SRHR AI");
-    console.log("==============================================");
-    console.log("Website: http://localhost:" + PORT);
-    console.log("Health:  http://localhost:" + PORT + "/api/health");
-    console.log("==============================================");
-    console.log("");
-});
+app.listen(
+    PORT,
+    () => {
+
+        console.log("");
+        console.log(
+            "=============================================="
+        );
+
+        console.log(
+            "🤖 AI YAWE / MENYA SRHR AI"
+        );
+
+        console.log(
+            "=============================================="
+        );
+
+        console.log(
+            `🌐 Website: http://localhost:${PORT}`
+        );
+
+        console.log(
+            `❤️ Health:  http://localhost:${PORT}/api/health`
+        );
+
+        console.log(
+            `🧠 Model:   ${MODEL}`
+        );
+
+        console.log(
+            `📚 Knowledge entries: ${knowledgeBase.length}`
+        );
+
+        console.log(
+            "=============================================="
+        );
+
+        console.log("");
+
+    }
+);

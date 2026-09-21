@@ -1,729 +1,1162 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const OpenAI = require("openai");
-const path = require("path");
+/* =========================================================
+   AI YAWE / MENYA SRHR
+   COMPLETE FRONTEND SCRIPT
+   ========================================================= */
 
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
-
-const knowledgeBase = require("./knowledge.js");
-
-app.use(cors());
-app.use(express.json({ limit: "2mb" }));
 
 /* =========================================================
-   STATIC WEBSITE
-========================================================= */
+   1. WELCOME SCREEN
+   ========================================================= */
 
-app.use(express.static(__dirname));
+function acceptWelcome() {
 
-/* =========================================================
-   LANGUAGE DETECTION
-========================================================= */
+    const modal =
+        document.getElementById("welcome-modal");
 
-function detectLanguage(question) {
-    const text = question.toLowerCase().trim();
+    if (modal) {
 
-    const kinyarwandaWords = [
-        "ni iki",
-        "ni izihe",
-        "nizihe",
-        "iki",
-        "ibiki",
-        "ute",
-        "nate",
-        "nakora",
-        "nkore",
-        "kora",
-        "gute",
-        "igihe",
-        "mbere",
-        "nyuma",
-        "imibonano",
-        "mpuzabitsina",
-        "indwara",
-        "zandurira",
-        "imihango",
-        "gutwita",
-        "inda",
-        "umwana",
-        "abana",
-        "umugore",
-        "umukobwa",
-        "umugabo",
-        "umuhungu",
-        "ubuzima",
-        "ubuzima bwimyororokere",
-        "kuboneza urubyaro",
-        "agakingirizo",
-        "ibimenyetso",
-        "ububabare",
-        "amaraso",
-        "inkari",
-        "igitsina",
-        "muburyo",
-        "mu gihe",
-        "ese",
-        "hari",
-        "bangahe",
-        "byagenda",
-        "nshobora",
-        "mfite",
-        "wakwibanda",
-        "mbese",
-        "ndashaka",
-        "nkeneye",
-        "nakora iki",
-        "nabigenza nte",
-        "ni gute",
-        "ni gute nakora",
-        "birashoboka"
-    ];
+        modal.style.display = "none";
 
-    for (const word of kinyarwandaWords) {
-        if (text.includes(word)) {
-            return "kinyarwanda";
-        }
+        modal.classList.add("hidden");
+
     }
 
-    const kinyarwandaStarts = [
-        "ni ",
-        "ese ",
-        "ninde ",
-        "nizihe ",
-        "nakora ",
-        "nshobora ",
-        "mbese ",
-        "mfite ",
-        "ndashaka ",
-        "nkeneye "
-    ];
-
-    for (const start of kinyarwandaStarts) {
-        if (text.startsWith(start)) {
-            return "kinyarwanda";
-        }
-    }
-
-    return "english";
 }
 
+
 /* =========================================================
-   KNOWLEDGE BASE HELPERS
-========================================================= */
+   2. WELCOME SCREEN SETUP
+   ========================================================= */
 
-function getKnowledgeItems() {
-    if (Array.isArray(knowledgeBase)) {
-        return knowledgeBase;
+/*
+   IMPORTANT:
+
+   The old version used localStorage.
+
+   That meant once somebody accepted the welcome screen,
+   the browser remembered it permanently and the welcome
+   screen could appear to "skip".
+
+   We intentionally DO NOT use localStorage here.
+
+   Every fresh page load starts with the welcome screen.
+*/
+
+function setupWelcomeScreen() {
+
+    const modal =
+        document.getElementById("welcome-modal");
+
+    if (!modal) {
+        return;
     }
 
-    if (knowledgeBase && Array.isArray(knowledgeBase.knowledgeBase)) {
-        return knowledgeBase.knowledgeBase;
-    }
+    modal.style.display = "flex";
 
-    if (knowledgeBase && Array.isArray(knowledgeBase.knowledge)) {
-        return knowledgeBase.knowledge;
-    }
+    modal.classList.remove("hidden");
 
-    if (knowledgeBase && Array.isArray(knowledgeBase.default)) {
-        return knowledgeBase.default;
-    }
-
-    return [];
 }
 
-function getKnowledgeAnswer(item) {
-    if (!item) return null;
 
-    if (typeof item === "string") {
-        return item;
-    }
+/* =========================================================
+   3. INITIALIZATION
+   ========================================================= */
 
-    return (
-        item.answer ||
-        item.content ||
-        item.response ||
-        item.text ||
-        null
+function initializeAiYawe() {
+
+    console.log(
+        "Ai Yawe JavaScript loaded successfully."
     );
-}
 
-/* =========================================================
-   KNOWLEDGE BASE SEARCH
-========================================================= */
+    setupWelcomeScreen();
 
-function searchKnowledge(question) {
-    const items = getKnowledgeItems();
 
-    if (!items.length) {
-        console.log("Knowledge base is empty or could not be read.");
-        return null;
-    }
+    const input =
+        document.getElementById("question");
 
-    const q = question.toLowerCase().trim();
 
-    let bestItem = null;
-    let bestScore = 0;
+    if (input) {
 
-    /* -----------------------------------------
-       1. Exact / specific intent search
-    ----------------------------------------- */
+        input.addEventListener(
+            "keydown",
+            function(event) {
 
-    for (const item of items) {
-        if (!item || typeof item !== "object") continue;
+                if (
+                    event.key === "Enter" &&
+                    !event.shiftKey
+                ) {
 
-        const keywords = Array.isArray(item.keywords)
-            ? item.keywords
-            : [];
+                    event.preventDefault();
 
-        for (const keyword of keywords) {
-            if (!keyword) continue;
+                    sendQuestion();
 
-            const k = String(keyword).toLowerCase().trim();
-
-            if (q === k) {
-                return {
-                    item,
-                    answer: getKnowledgeAnswer(item),
-                    score: 100
-                };
-            }
-
-            if (q.includes(k) && k.length >= 5) {
-                const score = 50 + k.length;
-
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestItem = item;
                 }
+
             }
-        }
-    }
-
-    if (bestItem) {
-        return {
-            item: bestItem,
-            answer: getKnowledgeAnswer(bestItem),
-            score: bestScore
-        };
-    }
-
-    /* -----------------------------------------
-       2. General keyword / title / topic search
-    ----------------------------------------- */
-
-    const questionWords = q
-        .split(/\s+/)
-        .map(word => word.replace(/[^\p{L}\p{N}]/gu, ""))
-        .filter(word => word.length >= 3);
-
-    for (const item of items) {
-        if (!item || typeof item !== "object") continue;
-
-        let score = 0;
-
-        const searchableParts = [];
-
-        if (Array.isArray(item.keywords)) {
-            searchableParts.push(
-                item.keywords.join(" ")
-            );
-        }
-
-        if (item.title) {
-            searchableParts.push(String(item.title));
-        }
-
-        if (item.topic) {
-            searchableParts.push(String(item.topic));
-        }
-
-        const answer = getKnowledgeAnswer(item);
-
-        if (answer) {
-            searchableParts.push(String(answer));
-        }
-
-        const searchableText = searchableParts
-            .join(" ")
-            .toLowerCase();
-
-        for (const word of questionWords) {
-            if (searchableText.includes(word)) {
-                score += 1;
-            }
-        }
-
-        if (score > bestScore) {
-            bestScore = score;
-            bestItem = item;
-        }
-    }
-
-    if (bestItem && bestScore >= 4) {
-        return {
-            item: bestItem,
-            answer: getKnowledgeAnswer(bestItem),
-            score: bestScore
-        };
-    }
-
-    return null;
-}
-
-/* =========================================================
-   ENGLISH DETECTION
-========================================================= */
-
-function looksEnglish(text) {
-    if (!text) return false;
-
-    const normalized = String(text)
-        .replace(/<[^>]*>/g, " ")
-        .toLowerCase();
-
-    const englishWords = [
-        "the",
-        "are",
-        "is",
-        "can",
-        "you",
-        "your",
-        "what",
-        "which",
-        "this",
-        "that",
-        "some",
-        "people",
-        "sexual",
-        "infection",
-        "infections",
-        "transmitted",
-        "symptoms",
-        "testing",
-        "health",
-        "contact",
-        "when",
-        "through",
-        "with",
-        "from",
-        "into",
-        "and",
-        "or",
-        "for",
-        "to"
-    ];
-
-    let matches = 0;
-
-    for (const word of englishWords) {
-        const regex = new RegExp(
-            `\\b${word}\\b`,
-            "i"
         );
 
-        if (regex.test(normalized)) {
-            matches++;
-        }
     }
 
-    return matches >= 3;
 }
 
-/* =========================================================
-   SYSTEM INSTRUCTIONS
-========================================================= */
-
-function buildSystemInstructions(language) {
-    if (language === "kinyarwanda") {
-        return `
-Uri Menya SRHR AI, umufasha utanga amakuru yizewe ku buzima bw'imyororokere n'imibonano mpuzabitsina.
-
-AMATEGEKO AKOMEYE:
-
-1. NIBA UMUKORESHAJI ABASHE MU KINYARWANDA, SUBIZA MU KINYARWANDA GUSA.
-2. NTUKORESHE IGISUBIZO CY'ICYONGEREZA KU IKIBAZO CYA KINYARWANDA.
-3. Koresha Kinyarwanda cyoroshye kandi gisobanutse.
-4. Ntugaseke cyangwa ngo ucire urubanza umukoresha.
-5. Tanga amakuru yizewe kandi ashingiye ku buzima.
-6. Ntutange diagnosis y'indwara nk'aho ari muganga wasuzumye umuntu.
-7. Niba ikibazo gisaba ubufasha bwihutirwa, saba umuntu gushaka ubufasha bw'abaganga cyangwa serivisi z'ubutabazi.
-8. Ku bibazo bya GBV, saba umuntu gushaka ubufasha bwizewe kandi wubahirize umutekano we.
-9. Ku bijyanye na consent, garagaza ko kwemera bigomba kuba ku bushake kandi bishobora kuvaho.
-10. Ntutange amabwiriza ashobora gushyira umuntu mu kaga.
-11. Ntuhimbe amakuru.
-12. Niba utazi igisubizo neza, vuga ko udafite amakuru ahagije.
-13. Subiza mu buryo bugufi kandi bwumvikana.
-14. Koresha bullets cyangwa paragraphs ngufi igihe bikwiye.
-15. NIBA UMUKORESHAJI YANDITSE MU KINYARWANDA, NTUGASUBIZE MU CYONGEREZA.
-
-IGISUBIZO CYAWE GITEGEREZWA KUBA MU KINYARWANDA GUSA.
-`;
-    }
-
-    return `
-You are Menya SRHR AI, an assistant providing reliable sexual and reproductive health information.
-
-RULES:
-
-1. Provide accurate and understandable information.
-2. Do not judge or shame the user.
-3. Do not diagnose a medical condition as if you examined the person.
-4. For emergencies, encourage appropriate professional or emergency support.
-5. For GBV-related questions, prioritize safety and trusted support.
-6. For consent, explain that consent must be voluntary and can be withdrawn.
-7. Do not invent information.
-8. If you are unsure, clearly say that you do not have enough information.
-9. Keep answers clear and reasonably concise.
-`;
-}
 
 /* =========================================================
-   KINYARWANDA TRANSLATION
-========================================================= */
+   4. START
+   ========================================================= */
 
-async function forceKinyarwanda(originalQuestion, englishAnswer) {
-    try {
-        console.log("Translating answer to Kinyarwanda...");
-
-        const response = await openai.responses.create({
-            model: "gpt-5.6-luna",
-
-            instructions: `
-Uri umusemuzi wa nyuma wa Menya SRHR AI.
-
-Hindura igisubizo gikurikira ukivane mu Cyongereza ugishyire mu Kinyarwanda gisanzwe, cyoroshye kandi cyumvikana.
-
-IKIBAZO CY'UMUKORESHAJI:
-${originalQuestion}
-
-IGISUBIZO CY'IBANZE:
-${englishAnswer}
-
-AMATEGEKO AKOMEYE:
-
-- SUBIZA MU KINYARWANDA GUSA.
-- Rinda ibisobanuro by'ubuvuzi uko biri.
-- Ntuhindure ukuri k'ubuvuzi.
-- Amagambo y'ubuvuzi mpuzamahanga nka HIV, AIDS, PEP, PrEP, STI, HPV, ART na ARV ashobora kuguma uko ari.
-- Niba igisubizo kirimo HTML nka <h1>, <h2>, <h3>, <h4>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <div>, <span>, <br>, <blockquote> cyangwa <hr>, RINDA izo HTML tags.
-- Hindura gusa amagambo ari imbere muri izo HTML tags.
-- Ntukureho HTML formatting.
-- Ntukongeremo Markdown.
-- Ntukongeremo ibisobanuro by'uko wahinduye.
-- Garura IGISUBIZO GUSA.
-`,
-
-            input:
-                "QUESTION:\n" +
-                originalQuestion +
-                "\n\nANSWER:\n" +
-                englishAnswer
-        });
-
-        const translated =
-            (response.output_text || "").trim();
-
-        if (!translated) {
-            throw new Error(
-                "Kinyarwanda translation returned empty."
-            );
-        }
-
-        console.log("Kinyarwanda translation completed.");
-
-        return translated;
-
-    } catch (error) {
-        console.error(
-            "Kinyarwanda translation error:",
-            error.message
-        );
-
-        return "";
-    }
-}
-
-/* =========================================================
-   DIRECT KINYARWANDA ANSWER FALLBACK
-========================================================= */
-
-async function generateKinyarwandaAnswer(question) {
-    try {
-        console.log(
-            "Generating direct Kinyarwanda answer..."
-        );
-
-        const response = await openai.responses.create({
-            model: "gpt-5.6-luna",
-
-            instructions:
-                buildSystemInstructions("kinyarwanda"),
-
-            input: question
-        });
-
-        const answer =
-            (response.output_text || "").trim();
-
-        if (!answer) {
-            throw new Error(
-                "OpenAI returned an empty Kinyarwanda answer."
-            );
-        }
-
-        return answer;
-
-    } catch (error) {
-        console.error(
-            "Direct Kinyarwanda answer error:",
-            error.message
-        );
-
-        return "";
-    }
-}
-
-/* =========================================================
-   ENSURE KINYARWANDA
-========================================================= */
-
-async function ensureKinyarwanda(
-    question,
-    answer
+if (
+    document.readyState === "loading"
 ) {
-    if (!answer) {
-        return "";
-    }
 
-    if (!looksEnglish(answer)) {
-        return answer;
-    }
-
-    console.log(
-        "Answer appears to be English. Kinyarwanda conversion required."
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeAiYawe
     );
 
-    /* -----------------------------------------
-       First attempt: translate existing answer
-    ----------------------------------------- */
+} else {
 
-    let translated =
-        await forceKinyarwanda(
-            question,
-            answer
+    initializeAiYawe();
+
+}
+
+
+/* =========================================================
+   5. TOPIC QUESTIONS
+   ========================================================= */
+
+const topicQuestions = {
+
+    imihango: [
+
+        "Ese imihango isanzwe iza ryari?",
+
+        "Ni ryari imihango iba idasanzwe?",
+
+        "Ese kubabara mu gihe cy'imihango ni ibisanzwe?",
+
+        "Nakora iki iyo imihango itinze?",
+
+        "Ese nshobora gusama inda mu gihe cy'imihango?"
+
+    ],
+
+
+    gutwita: [
+
+        "Ni ryari namenya ko ntwite?",
+
+        "Ese nakwipima ko ntwite?",
+
+        "Ese ndyamanye n'umuhungu natwita?",
+
+        "Ni ibihe bimenyetso by'inda?",
+
+        "Nakora iki niba ntwite ntari niteguye?"
+
+    ],
+
+
+    kuboneza: [
+
+        "Ni ubuhe buryo bwo kuboneza urubyaro?",
+
+        "Ese agakingirizo karinda gutwita?",
+
+        "Ese nakoresha ibinini byo kuboneza urubyaro?",
+
+        "Ese hari uburyo bwo kuboneza urubyaro bumara igihe kirekire?",
+
+        "Nakora iki nyuma y'imibonano idakingiye?"
+
+    ],
+
+
+    hiv: [
+
+        "HIV yandura ite?",
+
+        "Nakora iki niba ntekereza ko naba naranduye HIV?",
+
+        "Ni ryari nakwipimisha HIV?",
+
+        "STI ni iki?",
+
+        "Ese agakingirizo karinda HIV na STI?"
+
+    ],
+
+
+    consent: [
+
+        "Kwemera imibonano mpuzabitsina bisobanura iki?",
+
+        "Ese umuntu ashobora kuvuga oya?",
+
+        "Ese kwemera bishobora gukurwaho?",
+
+        "Nakora iki niba umuntu anshyiraho igitutu?"
+
+    ],
+
+
+    gbv: [
+
+        "Ihohoterwa rishingiye ku gitsina ni iki?",
+
+        "Nakora iki niba nafashwe ku ngufu?",
+
+        "Nakora iki niba umuntu ankoresha imibonano ku gahato?",
+
+        "Ni hehe nshobora gushakira ubufasha ku ihohoterwa?"
+
+    ]
+
+};
+
+
+/* =========================================================
+   6. SHOW TOPIC
+   ========================================================= */
+
+function showTopic(topic) {
+
+    const answer =
+        document.getElementById("answer");
+
+    if (!answer) {
+        return;
+    }
+
+
+    const questions =
+        topicQuestions[topic];
+
+    if (!questions) {
+        return;
+    }
+
+
+    let title = "Ibibazo";
+
+
+    if (topic === "imihango") {
+        title = "Imihango";
+    }
+
+    if (topic === "gutwita") {
+        title = "Gutwita";
+    }
+
+    if (topic === "kuboneza") {
+        title = "Kuboneza urubyaro";
+    }
+
+    if (topic === "hiv") {
+        title = "HIV na STI";
+    }
+
+    if (topic === "consent") {
+        title = "Kwemera imibonano";
+    }
+
+    if (topic === "gbv") {
+        title = "Ihohoterwa";
+    }
+
+
+    let html = `
+
+        <div class="topic-question-list">
+
+            <h3>
+                ${escapeHTML(title)}
+            </h3>
+
+            <p>
+                Hitamo ikibazo ushaka kubaza:
+            </p>
+
+    `;
+
+
+    questions.forEach(
+        function(question) {
+
+            html += `
+
+                <button
+                    class="topic-question-button"
+                    type="button"
+                    onclick="useTopicQuestion(${JSON.stringify(question)})"
+                >
+                    ${escapeHTML(question)}
+                </button>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    answer.innerHTML = html;
+
+    answer.scrollTop = 0;
+
+}
+
+
+/* =========================================================
+   7. USE TOPIC QUESTION
+   ========================================================= */
+
+function useTopicQuestion(question) {
+
+    const input =
+        document.getElementById("question");
+
+    if (!input) {
+        return;
+    }
+
+
+    input.value = question;
+
+    input.focus();
+
+    sendQuestion();
+
+}
+
+
+/* =========================================================
+   8. SEND QUESTION
+   ========================================================= */
+
+async function sendQuestion() {
+
+    const input =
+        document.getElementById("question");
+
+    const answer =
+        document.getElementById("answer");
+
+    const sendButton =
+        document.getElementById("send-button");
+
+
+    if (!input || !answer) {
+
+        console.error(
+            "Question input or answer area not found."
         );
 
-    if (
-        translated &&
-        !looksEnglish(translated)
-    ) {
-        return translated;
+        return;
+
     }
 
-    /* -----------------------------------------
-       Second attempt: generate directly
-    ----------------------------------------- */
 
-    console.log(
-        "Translation did not produce clear Kinyarwanda. Trying direct generation..."
+    const question =
+        input.value.trim();
+
+
+    if (!question) {
+        return;
+    }
+
+
+    /*
+       IMPORTANT:
+
+       Remove ONLY the welcome message.
+
+       NEVER do:
+
+       answer.innerHTML = "";
+
+       here.
+
+       Previous conversations must remain.
+    */
+
+    const welcome =
+        answer.querySelector(".welcome-chat");
+
+
+    if (welcome) {
+        welcome.remove();
+    }
+
+
+    /*
+       Remove topic question list only if
+       there is no previous conversation yet.
+    */
+
+    const existingMessages =
+        answer.querySelector(
+            ".user-message, .ai-message"
+        );
+
+
+    if (!existingMessages) {
+
+        const topicList =
+            answer.querySelector(
+                ".topic-question-list"
+            );
+
+        if (topicList) {
+            topicList.remove();
+        }
+
+    }
+
+
+    /* -----------------------------------------------------
+       SHOW USER QUESTION
+    ----------------------------------------------------- */
+
+    const userMessage =
+        document.createElement("div");
+
+
+    userMessage.className =
+        "user-message";
+
+
+    userMessage.innerHTML = `
+
+        <div class="user-bubble">
+
+            ${escapeHTML(question)}
+
+        </div>
+
+    `;
+
+
+    answer.appendChild(
+        userMessage
     );
 
-    translated =
-        await generateKinyarwandaAnswer(
+
+    /* -----------------------------------------------------
+       CLEAR INPUT
+    ----------------------------------------------------- */
+
+    input.value = "";
+
+
+    /* -----------------------------------------------------
+       DISABLE INPUT
+    ----------------------------------------------------- */
+
+    input.disabled = true;
+
+
+    if (sendButton) {
+        sendButton.disabled = true;
+    }
+
+
+    /* -----------------------------------------------------
+       SHOW LOADING
+    ----------------------------------------------------- */
+
+    const loading =
+        document.createElement("div");
+
+
+    loading.className =
+        "ai-message";
+
+
+    loading.id =
+        "ai-loading-" +
+        Date.now();
+
+
+    loading.innerHTML = `
+
+        <div class="ai-icon">
+            AI
+        </div>
+
+        <div>
+
+            <p>
+                Ndimo gushaka igisubizo...
+                ⏳
+            </p>
+
+        </div>
+
+    `;
+
+
+    answer.appendChild(
+        loading
+    );
+
+
+    scrollNewMessageToTop(
+        loading
+    );
+
+
+    try {
+
+        console.log(
+            "Sending question to Ai Yawe:",
             question
         );
 
-    if (
-        translated &&
-        !looksEnglish(translated)
-    ) {
-        return translated;
-    }
 
-    /* -----------------------------------------
-       Never return the original English answer
-    ----------------------------------------- */
-
-    return `
-<p>Mbabarira, ubu sinabashije gutanga igisubizo mu Kinyarwanda.</p>
-<p>Ongera ubaze ikibazo cyawe mu magambo make, ndagerageza kugufasha.</p>
-`;
-}
-
-/* =========================================================
-   CHAT API
-========================================================= */
-
-app.post("/api/chat", async (req, res) => {
-    try {
-        const question =
-            typeof req.body.question === "string"
-                ? req.body.question
-                : "";
-
-        if (!question.trim()) {
-            return res.status(400).json({
-                error: "Question is required."
-            });
-        }
-
-        const cleanQuestion =
-            question.trim();
-
-        const language =
-            detectLanguage(cleanQuestion);
-
-        console.log(
-            "----------------------------------------"
-        );
-
-        console.log(
-            "Question:",
-            cleanQuestion
-        );
-
-        console.log(
-            "Detected language:",
-            language
-        );
-
-        /* -----------------------------------------
-           SEARCH KNOWLEDGE BASE FIRST
-        ----------------------------------------- */
-
-        const knowledgeResult =
-            searchKnowledge(cleanQuestion);
-
-        if (
-            knowledgeResult &&
-            knowledgeResult.answer
-        ) {
-            console.log(
-                "Knowledge base match found. Score:",
-                knowledgeResult.score
-            );
-
-            let answer =
-                knowledgeResult.answer;
-
-            /* -------------------------------------
-               KINYARWANDA PROTECTION
-            ------------------------------------- */
-
-            if (language === "kinyarwanda") {
-                answer =
-                    await ensureKinyarwanda(
-                        cleanQuestion,
-                        answer
-                    );
-            }
-
-            return res.json({
-                answer,
-                source: "knowledge-base",
-                language
-            });
-        }
-
-        /* -----------------------------------------
-           NO KNOWLEDGE BASE MATCH
-        ----------------------------------------- */
-
-        console.log(
-            "No knowledge base match. Asking OpenAI..."
-        );
+        /* -------------------------------------------------
+           SEND TO BACKEND
+        ------------------------------------------------- */
 
         const response =
-            await openai.responses.create({
-                model: "gpt-5.6-luna",
+            await fetch(
+                "/api/chat",
+                {
+                    method: "POST",
 
-                instructions:
-                    buildSystemInstructions(
-                        language
-                    ),
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                input: cleanQuestion
-            });
+                    body:
+                        JSON.stringify({
+                            question:
+                                question
+                        })
+                }
+            );
 
-        let answer =
-            (response.output_text || "").trim();
 
-        /* -----------------------------------------
-           KINYARWANDA PROTECTION
-        ----------------------------------------- */
+        console.log(
+            "Backend response:",
+            response.status
+        );
 
-        if (language === "kinyarwanda") {
-            answer =
-                await ensureKinyarwanda(
-                    cleanQuestion,
-                    answer
-                );
+
+        let data = {};
+
+
+        try {
+
+            data =
+                await response.json();
+
+        } catch (jsonError) {
+
+            console.error(
+                "Could not read server JSON:",
+                jsonError
+            );
+
         }
 
-        return res.json({
-            answer,
-            source: "openai",
-            language
-        });
+
+        /* -------------------------------------------------
+           REMOVE LOADING
+        ------------------------------------------------- */
+
+        if (loading) {
+            loading.remove();
+        }
+
+
+        /* -------------------------------------------------
+           SERVER ERROR
+        ------------------------------------------------- */
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Server returned HTTP " +
+                response.status
+            );
+
+        }
+
+
+        /* -------------------------------------------------
+           GET ANSWER
+        ------------------------------------------------- */
+
+        let finalAnswer =
+            data.answer ||
+            data.response ||
+            data.message;
+
+
+        if (!finalAnswer) {
+
+            finalAnswer =
+                "Nta gisubizo cyabonetse. Ongera ugerageze.";
+
+        }
+
+
+        /* -------------------------------------------------
+           CREATE AI MESSAGE
+        ------------------------------------------------- */
+
+        const aiMessage =
+            document.createElement("div");
+
+
+        aiMessage.className =
+            "ai-message new-ai-answer";
+
+
+        aiMessage.innerHTML = `
+
+            <div class="ai-icon">
+                AI
+            </div>
+
+            <div>
+
+                ${formatAnswer(finalAnswer)}
+
+            </div>
+
+        `;
+
+
+        answer.appendChild(
+            aiMessage
+        );
+
+
+        scrollNewMessageToTop(
+            aiMessage
+        );
+
 
     } catch (error) {
+
         console.error(
-            "Chat API error:",
+            "Ai Yawe error:",
             error
         );
 
-        return res.status(500).json({
-            error:
-                "Habaye ikibazo kuri seriveri. Ongera ugerageze."
-        });
+
+        if (loading) {
+            loading.remove();
+        }
+
+
+        const errorMessage =
+            document.createElement("div");
+
+
+        errorMessage.className =
+            "ai-message new-ai-answer";
+
+
+        errorMessage.innerHTML = `
+
+            <div class="ai-icon">
+                AI
+            </div>
+
+            <div>
+
+                <h3>
+                    Habaye ikibazo
+                </h3>
+
+                <p>
+                    Ntibishoboye guhuza na
+                    Ai Yawe AI.
+                </p>
+
+                <p>
+                    Reba niba server iri gukora,
+                    hanyuma wongere ugerageze.
+                </p>
+
+            </div>
+
+        `;
+
+
+        answer.appendChild(
+            errorMessage
+        );
+
+
+        scrollNewMessageToTop(
+            errorMessage
+        );
+
     }
-});
+
+
+    /* -----------------------------------------------------
+       ENABLE INPUT AGAIN
+    ----------------------------------------------------- */
+
+    input.disabled = false;
+
+
+    if (sendButton) {
+        sendButton.disabled = false;
+    }
+
+
+    input.focus();
+
+}
+
 
 /* =========================================================
-   HEALTH CHECK
-========================================================= */
+   9. NEW ANSWER SCROLLING
+   ========================================================= */
 
-app.get("/api/health", (req, res) => {
-    res.json({
-        status: "ok",
-        service: "Menya SRHR AI",
-        languageSupport: [
-            "Kinyarwanda",
-            "English"
-        ]
-    });
-});
+function scrollNewMessageToTop(message) {
+
+    const answer =
+        document.getElementById("answer");
+
+
+    if (!answer || !message) {
+        return;
+    }
+
+
+    setTimeout(
+        function() {
+
+            const answerRect =
+                answer.getBoundingClientRect();
+
+
+            const messageRect =
+                message.getBoundingClientRect();
+
+
+            const relativeTop =
+                messageRect.top -
+                answerRect.top;
+
+
+            const target =
+                answer.scrollTop +
+                relativeTop -
+                20;
+
+
+            const maxScroll =
+                Math.max(
+                    0,
+                    answer.scrollHeight -
+                    answer.clientHeight
+                );
+
+
+            const safeTarget =
+                Math.max(
+                    0,
+                    Math.min(
+                        target,
+                        maxScroll
+                    )
+                );
+
+
+            answer.scrollTo({
+
+                top:
+                    safeTarget,
+
+                behavior:
+                    "smooth"
+
+            });
+
+        },
+        80
+    );
+
+}
+
 
 /* =========================================================
-   ROOT
-========================================================= */
+   10. FORMAT ANSWER
+   ========================================================= */
 
-app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "index.html")
-    );
-});
+function formatAnswer(text) {
+
+    if (
+        text === null ||
+        text === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    text =
+        String(text);
+
+
+    /*
+       Knowledge-base answers may already contain HTML.
+    */
+
+    const containsHTML =
+        /<\s*(h[1-6]|p|ul|ol|li|strong|b|em|i|div|span|br|blockquote|hr)\b/i.test(
+            text
+        );
+
+
+    if (containsHTML) {
+
+        return sanitizeAnswerHTML(
+            text
+        );
+
+    }
+
+
+    /*
+       Normal text / Markdown.
+    */
+
+    let safe =
+        escapeHTML(text);
+
+
+    safe =
+        safe.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+
+    safe =
+        safe.replace(
+            /^### (.*?)$/gm,
+            "<h3>$1</h3>"
+        );
+
+
+    safe =
+        safe.replace(
+            /^## (.*?)$/gm,
+            "<h3>$1</h3>"
+        );
+
+
+    safe =
+        safe.replace(
+            /^[•\-] (.*?)$/gm,
+            "<div>• $1</div>"
+        );
+
+
+    safe =
+        safe.replace(
+            /\n\n+/g,
+            "</p><p>"
+        );
+
+
+    safe =
+        safe.replace(
+            /\n/g,
+            "<br>"
+        );
+
+
+    return `
+
+        <div class="answer-text">
+
+            <p>
+                ${safe}
+            </p>
+
+        </div>
+
+    `;
+
+}
+
 
 /* =========================================================
-   START SERVER
-========================================================= */
+   11. SANITIZE ANSWER HTML
+   ========================================================= */
 
-app.listen(PORT, () => {
-    console.log(
-        `Menya SRHR AI server is running on http://localhost:${PORT}`
+function sanitizeAnswerHTML(html) {
+
+    const parser =
+        new DOMParser();
+
+
+    const doc =
+        parser.parseFromString(
+            html,
+            "text/html"
+        );
+
+
+    const allowedTags =
+        new Set([
+
+            "H1",
+            "H2",
+            "H3",
+            "H4",
+            "H5",
+            "H6",
+            "P",
+            "BR",
+            "STRONG",
+            "B",
+            "EM",
+            "I",
+            "UL",
+            "OL",
+            "LI",
+            "DIV",
+            "SPAN",
+            "BLOCKQUOTE",
+            "HR"
+
+        ]);
+
+
+    const allowedAttributes =
+        new Set([
+            "class"
+        ]);
+
+
+    function cleanNode(node) {
+
+        const children =
+            Array.from(
+                node.childNodes
+            );
+
+
+        children.forEach(
+            function(child) {
+
+                if (
+                    child.nodeType ===
+                    Node.ELEMENT_NODE
+                ) {
+
+                    const tag =
+                        child.tagName.toUpperCase();
+
+
+                    if (
+                        !allowedTags.has(tag)
+                    ) {
+
+                        const fragment =
+                            document.createDocumentFragment();
+
+
+                        while (
+                            child.firstChild
+                        ) {
+
+                            fragment.appendChild(
+                                child.firstChild
+                            );
+
+                        }
+
+
+                        child.replaceWith(
+                            fragment
+                        );
+
+                        return;
+
+                    }
+
+
+                    Array.from(
+                        child.attributes
+                    ).forEach(
+                        function(attribute) {
+
+                            if (
+                                !allowedAttributes.has(
+                                    attribute.name.toLowerCase()
+                                )
+                            ) {
+
+                                child.removeAttribute(
+                                    attribute.name
+                                );
+
+                            }
+
+                        }
+                    );
+
+
+                    cleanNode(child);
+
+                }
+
+            }
+        );
+
+    }
+
+
+    cleanNode(
+        doc.body
     );
 
-    console.log(
-        "Knowledge base loaded:",
-        getKnowledgeItems().length,
-        "items"
-    );
-});
+
+    return doc.body.innerHTML;
+
+}
+
+
+/* =========================================================
+   12. ESCAPE HTML
+   ========================================================= */
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement("div");
+
+
+    div.textContent =
+        String(text);
+
+
+    return div.innerHTML;
+
+}
+
+
+/* =========================================================
+   13. CLEAR CHAT
+   ========================================================= */
+
+function clearChat() {
+
+    const answer =
+        document.getElementById("answer");
+
+
+    if (!answer) {
+        return;
+    }
+
+
+    answer.innerHTML = `
+
+        <div class="welcome-chat">
+
+            <div class="welcome-chat-icon">
+                🤍
+            </div>
+
+            <h2>
+                Murakaza neza!
+            </h2>
+
+            <p>
+                Ndi Ai Yawe. Ushobora kumbaza
+                ikibazo mu Kinyarwanda.
+            </p>
+
+            <p>
+                Hitamo ingingo ibumoso cyangwa
+                wandike ikibazo cyawe hasi.
+            </p>
+
+        </div>
+
+    `;
+
+
+    answer.scrollTop = 0;
+
+}
+
+
+/* =========================================================
+   14. NEW CHAT
+   ========================================================= */
+
+function newChat() {
+
+    clearChat();
+
+
+    const input =
+        document.getElementById("question");
+
+
+    if (input) {
+
+        input.value = "";
+
+        input.focus();
+
+    }
+
+}
+
+
+/* =========================================================
+   15. MAKE FUNCTIONS AVAILABLE
+   ========================================================= */
+
+window.acceptWelcome =
+    acceptWelcome;
+
+window.setupWelcomeScreen =
+    setupWelcomeScreen;
+
+window.showTopic =
+    showTopic;
+
+window.useTopicQuestion =
+    useTopicQuestion;
+
+window.sendQuestion =
+    sendQuestion;
+
+window.clearChat =
+    clearChat;
+
+window.newChat =
+    newChat;
+
+window.formatAnswer =
+    formatAnswer;
+
+window.escapeHTML =
+    escapeHTML;
+
+window.scrollNewMessageToTop =
+    scrollNewMessageToTop;
