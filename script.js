@@ -1,108 +1,994 @@
-/* ============================================================
-   MENYA SRHR AI
-   FRONTEND CHAT SYSTEM
-   ============================================================
-
-   FLOW:
-
-   User Question
-        ↓
-   /api/chat
-        ↓
-   Knowledge Base FIRST
-        ↓
-   If no good match → OpenAI
-        ↓
-   Answer displayed in chatbot
-
-   IMPORTANT:
-   The OpenAI API key is NEVER stored in this file.
-   It remains safely on the backend inside .env.
-   ============================================================ */
+/* =========================================================
+   AI YAWE / MENYA SRHR
+   COMPLETE FRONTEND SCRIPT
+========================================================= */
 
 
-/* ============================================================
-   CONFIGURATION
-   ============================================================ */
+/* =========================================================
+   1. WELCOME SCREEN
+========================================================= */
 
-const MENYA_API_URL = "/api/chat";
+function acceptWelcome() {
 
-let isWaitingForAI = false;
+    const modal =
+        document.getElementById(
+            "welcome-modal"
+        );
 
-
-/* ============================================================
-   STARTUP
-   ============================================================ */
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    setupQuestionInput();
-
-    showWelcomeMessage();
-
-});
-
-
-/* ============================================================
-   QUESTION INPUT
-   ============================================================ */
-
-function setupQuestionInput() {
-
-    const input = document.getElementById("question");
-
-    if (!input) {
-        console.warn("Menya SRHR: question input not found.");
+    if (!modal) {
         return;
     }
 
-    input.addEventListener("keydown", function (event) {
+    /*
+       Hide the welcome message after
+       the user clicks the start button.
+    */
 
-        if (event.key === "Enter") {
+    modal.style.display =
+        "none";
 
-            event.preventDefault();
-
-            sendQuestion();
-
-        }
-
-    });
+    modal.classList.add(
+        "hidden"
+    );
 
 }
 
 
-/* ============================================================
-   WELCOME MESSAGE
-   ============================================================ */
+/* =========================================================
+   2. WELCOME SCREEN SETUP
+========================================================= */
 
-function showWelcomeMessage() {
+function setupWelcomeScreen() {
 
-    const answer = document.getElementById("answer");
+    const modal =
+        document.getElementById(
+            "welcome-modal"
+        );
+
+    if (!modal) {
+        return;
+    }
+
+    /*
+       IMPORTANT:
+
+       Always show the welcome message
+       whenever Ai Yawe is opened or refreshed.
+
+       We intentionally do NOT use localStorage
+       here, so the welcome screen will not
+       permanently disappear.
+    */
+
+    modal.style.display =
+        "flex";
+
+    modal.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+/* =========================================================
+   3. INITIALIZATION
+========================================================= */
+
+function initializeAiYawe() {
+
+    console.log(
+        "Ai Yawe JavaScript loaded successfully."
+    );
+
+    setupWelcomeScreen();
+
+
+    const input =
+        document.getElementById(
+            "question"
+        );
+
+
+    if (input) {
+
+        input.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter" &&
+                    !event.shiftKey
+                ) {
+
+                    event.preventDefault();
+
+                    sendQuestion();
+
+                }
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   4. START
+========================================================= */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeAiYawe
+    );
+
+} else {
+
+    initializeAiYawe();
+
+}
+
+
+/* =========================================================
+   5. TOPIC QUESTIONS
+========================================================= */
+
+const topicQuestions = {
+
+    imihango: [
+
+        "Ese imihango isanzwe iza ryari?",
+
+        "Ni ryari imihango iba idasanzwe?",
+
+        "Ese kubabara mu gihe cy'imihango ni ibisanzwe?",
+
+        "Nakora iki iyo imihango itinze?",
+
+        "Ese nshobora gusama inda mu gihe cy'imihango?"
+
+    ],
+
+
+    gutwita: [
+
+        "Ni ryari namenya ko ntwite?",
+
+        "Ese nakwipima ko ntwite?",
+
+        "Ese ndyamanye n'umuhungu natwita?",
+
+        "Ni ibihe bimenyetso by'inda?",
+
+        "Nakora iki niba ntwite ntari niteguye?"
+
+    ],
+
+
+    kuboneza: [
+
+        "Ni ubuhe buryo bwo kuboneza urubyaro?",
+
+        "Ese agakingirizo karinda gutwita?",
+
+        "Ese nakoresha ibinini byo kuboneza urubyaro?",
+
+        "Ese hari uburyo bwo kuboneza urubyaro bumara igihe kirekire?",
+
+        "Nakora iki nyuma y'imibonano idakingiye?"
+
+    ],
+
+
+    hiv: [
+
+        "HIV yandura ite?",
+
+        "Nakora iki niba ntekereza ko naba naranduye HIV?",
+
+        "Ni ryari nakwipimisha HIV?",
+
+        "STI ni iki?",
+
+        "Ese agakingirizo karinda HIV na STI?"
+
+    ],
+
+
+    consent: [
+
+        "Kwemera imibonano mpuzabitsina bisobanura iki?",
+
+        "Ese umuntu ashobora kuvuga oya?",
+
+        "Ese kwemera bishobora gukurwaho?",
+
+        "Nakora iki niba umuntu anshyiraho igitutu?"
+
+    ],
+
+
+    gbv: [
+
+        "Ihohoterwa rishingiye ku gitsina ni iki?",
+
+        "Nakora iki niba nafashwe ku ngufu?",
+
+        "Nakora iki niba umuntu ankoresha imibonano ku gahato?",
+
+        "Ni hehe nshobora gushakira ubufasha ku ihohoterwa?"
+
+    ]
+
+};
+
+
+/* =========================================================
+   6. SHOW TOPIC
+========================================================= */
+
+function showTopic(topic) {
+
+    const answer =
+        document.getElementById(
+            "answer"
+        );
 
     if (!answer) {
         return;
     }
 
-    /*
-       Do not overwrite an existing conversation.
-    */
 
-    if (answer.innerHTML.trim() !== "") {
+    const questions =
+        topicQuestions[topic];
+
+
+    if (!questions) {
         return;
     }
 
-    answer.innerHTML = getWelcomeHTML();
+
+    let title =
+        "Ibibazo";
+
+
+    if (topic === "imihango") {
+
+        title =
+            "Imihango";
+
+    }
+
+
+    if (topic === "gutwita") {
+
+        title =
+            "Gutwita";
+
+    }
+
+
+    if (topic === "kuboneza") {
+
+        title =
+            "Kuboneza urubyaro";
+
+    }
+
+
+    if (topic === "hiv") {
+
+        title =
+            "HIV na STI";
+
+    }
+
+
+    if (topic === "consent") {
+
+        title =
+            "Kwemera imibonano";
+
+    }
+
+
+    if (topic === "gbv") {
+
+        title =
+            "Ihohoterwa";
+
+    }
+
+
+    let html = `
+
+        <div class="topic-question-list">
+
+            <h3>
+                ${escapeHTML(title)}
+            </h3>
+
+            <p>
+                Hitamo ikibazo ushaka kubaza:
+            </p>
+
+    `;
+
+
+    questions.forEach(
+        function(question) {
+
+            html += `
+
+                <button
+                    class="topic-question-button"
+                    type="button"
+                    onclick="useTopicQuestion(${JSON.stringify(question)})"
+                >
+                    ${escapeHTML(question)}
+                </button>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+        </div>
+
+    `;
+
+
+    answer.innerHTML =
+        html;
+
+    answer.scrollTop = 0;
 
 }
 
 
-/* ============================================================
-   WELCOME HTML
-   ============================================================ */
+/* =========================================================
+   7. USE TOPIC QUESTION
+========================================================= */
 
-function getWelcomeHTML() {
+function useTopicQuestion(question) {
+
+    const input =
+        document.getElementById(
+            "question"
+        );
+
+    if (!input) {
+        return;
+    }
+
+
+    input.value =
+        question;
+
+    input.focus();
+
+    sendQuestion();
+
+}
+
+
+/* =========================================================
+   8. SEND QUESTION
+========================================================= */
+
+async function sendQuestion() {
+
+    const input =
+        document.getElementById(
+            "question"
+        );
+
+
+    const answer =
+        document.getElementById(
+            "answer"
+        );
+
+
+    const sendButton =
+        document.getElementById(
+            "send-button"
+        );
+
+
+    if (!input || !answer) {
+
+        console.error(
+            "Question input or answer area not found."
+        );
+
+        return;
+
+    }
+
+
+    const question =
+        input.value.trim();
+
+
+    if (!question) {
+        return;
+    }
+
+
+    /* -----------------------------------------------------
+       SHOW USER QUESTION
+    ----------------------------------------------------- */
+
+    const welcome =
+        answer.querySelector(
+            ".welcome-chat"
+        );
+
+
+    if (welcome) {
+
+        welcome.remove();
+
+    }
+
+
+    const userMessage =
+        document.createElement(
+            "div"
+        );
+
+
+    userMessage.className =
+        "user-message";
+
+
+    userMessage.innerHTML = `
+
+        <div class="user-bubble">
+
+            ${escapeHTML(question)}
+
+        </div>
+
+    `;
+
+
+    answer.appendChild(
+        userMessage
+    );
+
+
+    /* -----------------------------------------------------
+       CLEAR INPUT
+    ----------------------------------------------------- */
+
+    input.value = "";
+
+
+    /* -----------------------------------------------------
+       DISABLE INPUT
+    ----------------------------------------------------- */
+
+    input.disabled =
+        true;
+
+
+    if (sendButton) {
+
+        sendButton.disabled =
+            true;
+
+    }
+
+
+    /* -----------------------------------------------------
+       SHOW LOADING
+    ----------------------------------------------------- */
+
+    const loading =
+        document.createElement(
+            "div"
+        );
+
+
+    loading.className =
+        "ai-message";
+
+
+    loading.id =
+        "ai-loading-" +
+        Date.now();
+
+
+    loading.innerHTML = `
+
+        <div class="ai-icon">
+            AI
+        </div>
+
+        <div>
+
+            <p>
+                Ndimo gushaka igisubizo...
+                ⏳
+            </p>
+
+        </div>
+
+    `;
+
+
+    answer.appendChild(
+        loading
+    );
+
+
+    /*
+       Scroll the loading message
+       to the visible area.
+    */
+
+    scrollNewMessageToTop(
+        loading
+    );
+
+
+    try {
+
+        console.log(
+            "Sending question to Ai Yawe:",
+            question
+        );
+
+
+        /* -------------------------------------------------
+           SEND TO BACKEND
+        ------------------------------------------------- */
+
+        const response =
+            await fetch(
+                "/api/chat",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            question:
+                                question
+
+                        })
+
+                }
+            );
+
+
+        console.log(
+            "Backend response:",
+            response.status
+        );
+
+
+        let data = {};
+
+
+        try {
+
+            data =
+                await response.json();
+
+        } catch (jsonError) {
+
+            console.error(
+                "Could not read server JSON:",
+                jsonError
+            );
+
+        }
+
+
+        /* -------------------------------------------------
+           REMOVE LOADING
+        ------------------------------------------------- */
+
+        if (loading) {
+
+            loading.remove();
+
+        }
+
+
+        /* -------------------------------------------------
+           SERVER ERROR
+        ------------------------------------------------- */
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Server returned HTTP " +
+                response.status
+            );
+
+        }
+
+
+        /* -------------------------------------------------
+           GET ANSWER
+        ------------------------------------------------- */
+
+        let finalAnswer =
+            data.answer ||
+            data.response ||
+            data.message;
+
+
+        if (!finalAnswer) {
+
+            finalAnswer =
+                "Nta gisubizo cyabonetse. Ongera ugerageze.";
+
+        }
+
+
+        /* -------------------------------------------------
+           CREATE AI MESSAGE
+        ------------------------------------------------- */
+
+        const aiMessage =
+            document.createElement(
+                "div"
+            );
+
+
+        aiMessage.className =
+            "ai-message new-ai-answer";
+
+
+        aiMessage.innerHTML = `
+
+            <div class="ai-icon">
+                AI
+            </div>
+
+            <div>
+
+                ${formatAnswer(finalAnswer)}
+
+            </div>
+
+        `;
+
+
+        answer.appendChild(
+            aiMessage
+        );
+
+
+        /*
+           Scroll ONLY the answer area.
+        */
+
+        scrollNewMessageToTop(
+            aiMessage
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Ai Yawe error:",
+            error
+        );
+
+
+        if (loading) {
+
+            loading.remove();
+
+        }
+
+
+        const errorMessage =
+            document.createElement(
+                "div"
+            );
+
+
+        errorMessage.className =
+            "ai-message new-ai-answer";
+
+
+        errorMessage.innerHTML = `
+
+            <div class="ai-icon">
+                AI
+            </div>
+
+            <div>
+
+                <h3>
+                    Habaye ikibazo
+                </h3>
+
+                <p>
+                    Ntibishoboye guhuza na
+                    Ai Yawe AI.
+                </p>
+
+                <p>
+                    Reba niba server iri gukora,
+                    hanyuma wongere ugerageze.
+                </p>
+
+            </div>
+
+        `;
+
+
+        answer.appendChild(
+            errorMessage
+        );
+
+
+        scrollNewMessageToTop(
+            errorMessage
+        );
+
+    }
+
+
+    /* -----------------------------------------------------
+       ENABLE INPUT AGAIN
+    ----------------------------------------------------- */
+
+    input.disabled =
+        false;
+
+
+    if (sendButton) {
+
+        sendButton.disabled =
+            false;
+
+    }
+
+
+    input.focus();
+
+}
+
+
+/* =========================================================
+   9. NEW ANSWER SCROLLING
+========================================================= */
+
+/*
+   This function scrolls ONLY the #answer area.
+
+   It does NOT scroll the whole webpage.
+
+   It positions the beginning of the new AI answer
+   near the top of the visible chat area.
+*/
+
+function scrollNewMessageToTop(
+    message
+) {
+
+    const answer =
+        document.getElementById(
+            "answer"
+        );
+
+
+    if (!answer || !message) {
+        return;
+    }
+
+
+    requestAnimationFrame(
+        function() {
+
+            requestAnimationFrame(
+                function() {
+
+                    const answerRect =
+                        answer.getBoundingClientRect();
+
+
+                    const messageRect =
+                        message.getBoundingClientRect();
+
+
+                    const relativeTop =
+                        messageRect.top -
+                        answerRect.top;
+
+
+                    const target =
+                        answer.scrollTop +
+                        relativeTop -
+                        20;
+
+
+                    const maxScroll =
+                        Math.max(
+                            0,
+                            answer.scrollHeight -
+                            answer.clientHeight
+                        );
+
+
+                    const safeTarget =
+                        Math.max(
+                            0,
+                            Math.min(
+                                target,
+                                maxScroll
+                            )
+                        );
+
+
+                    answer.scrollTop =
+                        safeTarget;
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   10. FORMAT ANSWER
+========================================================= */
+
+function formatAnswer(text) {
+
+    if (
+        text === null ||
+        text === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    let safe =
+        escapeHTML(
+            String(text)
+        );
+
+
+    /* Bold markdown */
+
+    safe =
+        safe.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
+        );
+
+
+    /* Headings */
+
+    safe =
+        safe.replace(
+            /^### (.*?)$/gm,
+            "<h3>$1</h3>"
+        );
+
+
+    safe =
+        safe.replace(
+            /^## (.*?)$/gm,
+            "<h3>$1</h3>"
+        );
+
+
+    /* Bullet points */
+
+    safe =
+        safe.replace(
+            /^[•\-] (.*?)$/gm,
+            "<div>• $1</div>"
+        );
+
+
+    /* Paragraph breaks */
+
+    safe =
+        safe.replace(
+            /\n\n+/g,
+            "</p><p>"
+        );
+
+
+    /* Single line breaks */
+
+    safe =
+        safe.replace(
+            /\n/g,
+            "<br>"
+        );
+
 
     return `
+
+        <div class="answer-text">
+
+            <p>
+                ${safe}
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   11. ESCAPE HTML
+========================================================= */
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        String(text);
+
+
+    return div.innerHTML;
+
+}
+
+
+/* =========================================================
+   12. CLEAR CHAT
+========================================================= */
+
+function clearChat() {
+
+    const answer =
+        document.getElementById(
+            "answer"
+        );
+
+
+    if (!answer) {
+        return;
+    }
+
+
+    answer.innerHTML = `
 
         <div class="welcome-chat">
 
@@ -115,9 +1001,8 @@ function getWelcomeHTML() {
             </h2>
 
             <p>
-                Ndi Menya SRHR.
-                Ushobora kumbaza ikibazo
-                mu Kinyarwanda cyangwa English.
+                Ndi Ai Yawe. Ushobora kumbaza
+                ikibazo mu Kinyarwanda.
             </p>
 
             <p>
@@ -129,882 +1014,21 @@ function getWelcomeHTML() {
 
     `;
 
-}
 
-
-/* ============================================================
-   SEND QUESTION
-   ============================================================ */
-
-async function sendQuestion() {
-
-    const input = document.getElementById("question");
-
-    const answer = document.getElementById("answer");
-
-    if (!input || !answer) {
-        return;
-    }
-
-
-    /* --------------------------------------------------------
-       GET QUESTION
-       -------------------------------------------------------- */
-
-    const question = input.value.trim();
-
-    if (!question) {
-        return;
-    }
-
-
-    /* --------------------------------------------------------
-       PREVENT MULTIPLE REQUESTS
-       -------------------------------------------------------- */
-
-    if (isWaitingForAI) {
-        return;
-    }
-
-    isWaitingForAI = true;
-
-
-    /* --------------------------------------------------------
-       DISPLAY USER QUESTION
-       -------------------------------------------------------- */
-
-    addUserMessage(answer, question);
-
-
-    /* --------------------------------------------------------
-       CLEAR INPUT
-       -------------------------------------------------------- */
-
-    input.value = "";
-
-    input.focus();
-
-
-    /* --------------------------------------------------------
-       DISPLAY THINKING INDICATOR
-       -------------------------------------------------------- */
-
-    const thinkingMessage = addThinkingMessage(answer);
-
-    scrollChatToBottom();
-
-
-    try {
-
-        /* ----------------------------------------------------
-           SEND QUESTION TO BACKEND
-           ---------------------------------------------------- */
-
-        const response = await fetch(MENYA_API_URL, {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                question: question
-            })
-
-        });
-
-
-        /* ----------------------------------------------------
-           CHECK HTTP RESPONSE
-           ---------------------------------------------------- */
-
-        let data = null;
-
-        try {
-
-            data = await response.json();
-
-        } catch (jsonError) {
-
-            console.error(
-                "Menya SRHR: Could not read server response.",
-                jsonError
-            );
-
-        }
-
-
-        /* ----------------------------------------------------
-           REMOVE THINKING INDICATOR
-           ---------------------------------------------------- */
-
-        removeThinkingMessage(thinkingMessage);
-
-
-        /* ----------------------------------------------------
-           SERVER ERROR
-           ---------------------------------------------------- */
-
-        if (!response.ok) {
-
-            console.error(
-                "Menya SRHR API error:",
-                data
-            );
-
-            const errorMessage =
-                data && data.error
-                    ? data.error
-                    : getConnectionErrorMessage();
-
-            addAIMessage(
-                answer,
-                formatErrorMessage(errorMessage)
-            );
-
-            scrollChatToBottom();
-
-            return;
-        }
-
-
-        /* ----------------------------------------------------
-           INVALID RESPONSE
-           ---------------------------------------------------- */
-
-        if (
-            !data ||
-            typeof data.answer !== "string" ||
-            !data.answer.trim()
-        ) {
-
-            console.error(
-                "Menya SRHR: Invalid API response.",
-                data
-            );
-
-            addAIMessage(
-                answer,
-                getGenericErrorMessage()
-            );
-
-            scrollChatToBottom();
-
-            return;
-        }
-
-
-        /* ----------------------------------------------------
-           DISPLAY ANSWER
-           ---------------------------------------------------- */
-
-        const formattedAnswer =
-            formatServerAnswer(
-                data.answer,
-                data.source
-            );
-
-        addAIMessage(
-            answer,
-            formattedAnswer
-        );
-
-
-        /* ----------------------------------------------------
-           SCROLL
-           ---------------------------------------------------- */
-
-        scrollChatToBottom();
-
-
-    } catch (error) {
-
-        console.error(
-            "Menya SRHR connection error:",
-            error
-        );
-
-
-        /* ----------------------------------------------------
-           REMOVE THINKING INDICATOR
-           ---------------------------------------------------- */
-
-        removeThinkingMessage(thinkingMessage);
-
-
-        /* ----------------------------------------------------
-           DISPLAY CONNECTION ERROR
-           ---------------------------------------------------- */
-
-        addAIMessage(
-            answer,
-            getConnectionErrorMessage()
-        );
-
-
-        scrollChatToBottom();
-
-
-    } finally {
-
-        isWaitingForAI = false;
-
-        input.focus();
-
-    }
+    answer.scrollTop =
+        0;
 
 }
 
 
-/* ============================================================
-   THINKING INDICATOR
-   ============================================================ */
+/* =========================================================
+   13. NEW CHAT
+========================================================= */
 
-function addThinkingMessage(container) {
+function newChat() {
 
-    const message =
-        document.createElement("div");
+    clearChat();
 
-    message.className =
-        "ai-message thinking-message";
-
-
-    message.innerHTML = `
-
-        <div class="ai-icon">
-            AI
-        </div>
-
-        <div class="thinking-content">
-
-            <span>AI is thinking</span>
-
-            <span class="thinking-dots">
-                <span>.</span>
-                <span>.</span>
-                <span>.</span>
-            </span>
-
-        </div>
-
-    `;
-
-
-    container.appendChild(message);
-
-
-    scrollChatToBottom();
-
-
-    return message;
-
-}
-
-
-/* ============================================================
-   REMOVE THINKING INDICATOR
-   ============================================================ */
-
-function removeThinkingMessage(message) {
-
-    if (!message) {
-        return;
-    }
-
-    if (message.parentNode) {
-
-        message.parentNode.removeChild(
-            message
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   FORMAT SERVER ANSWER
-   ============================================================ */
-
-function formatServerAnswer(
-    answer,
-    source
-) {
-
-    /*
-       Knowledge-base answers already contain
-       safe HTML formatting such as:
-
-       <h3>
-       <p>
-       <ul>
-       <li>
-       <strong>
-
-       Therefore we preserve them.
-
-       OpenAI responses are normally plain text /
-       Markdown, so they are safely converted below.
-    */
-
-    if (source === "knowledge-base") {
-
-        return answer;
-
-    }
-
-
-    /*
-       OpenAI answer
-
-       Convert basic Markdown safely.
-    */
-
-    return formatAIText(answer);
-
-}
-
-
-/* ============================================================
-   FORMAT OPENAI TEXT
-   ============================================================ */
-
-function formatAIText(text) {
-
-    if (!text) {
-        return "";
-    }
-
-
-    /*
-       First escape HTML so AI-generated text
-       cannot inject arbitrary HTML.
-    */
-
-    let safeText =
-        escapeHTML(text);
-
-
-    /*
-       Bold:
-       **text**
-    */
-
-    safeText =
-        safeText.replace(
-            /\*\*(.+?)\*\*/g,
-            "<strong>$1</strong>"
-        );
-
-
-    /*
-       Italic:
-       *text*
-    */
-
-    safeText =
-        safeText.replace(
-            /(^|[^\*])\*([^*\n]+)\*(?!\*)/g,
-            "$1<em>$2</em>"
-        );
-
-
-    /*
-       Headings:
-       ### Heading
-    */
-
-    safeText =
-        safeText.replace(
-            /^### (.+)$/gm,
-            "<h4>$1</h4>"
-        );
-
-    safeText =
-        safeText.replace(
-            /^## (.+)$/gm,
-            "<h3>$1</h3>"
-        );
-
-    safeText =
-        safeText.replace(
-            /^# (.+)$/gm,
-            "<h3>$1</h3>"
-        );
-
-
-    /*
-       Bullet points:
-       - item
-       * item
-    */
-
-    const lines =
-        safeText.split("\n");
-
-
-    let html = "";
-
-    let inList = false;
-
-
-    lines.forEach(function (line) {
-
-        const trimmed =
-            line.trim();
-
-
-        if (
-            trimmed.startsWith("- ") ||
-            trimmed.startsWith("* ")
-        ) {
-
-            if (!inList) {
-
-                html += "<ul>";
-
-                inList = true;
-
-            }
-
-
-            html +=
-                "<li>" +
-                trimmed.substring(2) +
-                "</li>";
-
-            return;
-
-        }
-
-
-        if (inList) {
-
-            html += "</ul>";
-
-            inList = false;
-
-        }
-
-
-        if (!trimmed) {
-
-            return;
-
-        }
-
-
-        /*
-           Do not wrap headings again.
-        */
-
-        if (
-            trimmed.startsWith("<h3>") ||
-            trimmed.startsWith("<h4>")
-        ) {
-
-            html += trimmed;
-
-        } else {
-
-            html +=
-                "<p>" +
-                trimmed +
-                "</p>";
-
-        }
-
-    });
-
-
-    if (inList) {
-
-        html += "</ul>";
-
-    }
-
-
-    return html;
-
-}
-
-
-/* ============================================================
-   ERROR MESSAGE
-   ============================================================ */
-
-function formatErrorMessage(errorMessage) {
-
-    const safe =
-        escapeHTML(
-            errorMessage ||
-            getGenericErrorMessage()
-        );
-
-
-    return `
-
-        <h3>
-            ⚠️ Hari ikibazo
-        </h3>
-
-        <p>
-            ${safe}
-        </p>
-
-        <p>
-            Ongera ugerageze nyuma gato.
-        </p>
-
-        <div class="source-note">
-            ℹ️ Niba ikibazo ari icyihutirwa,
-            shaka ubufasha bw'umukozi w'ubuzima
-            cyangwa serivisi zihutirwa.
-        </div>
-
-    `;
-
-}
-
-
-/* ============================================================
-   CONNECTION ERROR
-   ============================================================ */
-
-function getConnectionErrorMessage() {
-
-    return `
-
-        <h3>
-            ⚠️ Menya SRHR AI ntiri kuboneka
-        </h3>
-
-        <p>
-            Habaye ikibazo cyo guhuza chatbot
-            na server.
-        </p>
-
-        <p>
-            Reba ko server ya Menya SRHR iri gukora,
-            hanyuma wongere ugerageze.
-        </p>
-
-        <div class="source-note">
-            ℹ️ Niba uri gukoresha chatbot kuri
-            localhost, menya neza ko
-            <strong>node server.js</strong>
-            ikiri gukora.
-        </div>
-
-    `;
-
-}
-
-
-/* ============================================================
-   GENERIC ERROR
-   ============================================================ */
-
-function getGenericErrorMessage() {
-
-    return `
-
-        <h3>
-            ⚠️ Habaye ikibazo
-        </h3>
-
-        <p>
-            AI ntiyagaruye igisubizo.
-            Ongera ugerageze nyuma gato.
-        </p>
-
-        <div class="source-note">
-            ℹ️ Menya SRHR itanga amakuru rusange.
-            Ntabwo isimbura umukozi w'ubuzima.
-        </div>
-
-    `;
-
-}
-
-
-/* ============================================================
-   ADD USER MESSAGE
-   ============================================================ */
-
-function addUserMessage(
-    container,
-    question
-) {
-
-    const message =
-        document.createElement("div");
-
-
-    message.className =
-        "user-message";
-
-
-    message.innerHTML = `
-
-        <div class="user-bubble">
-            ${escapeHTML(question)}
-        </div>
-
-    `;
-
-
-    container.appendChild(message);
-
-}
-
-
-/* ============================================================
-   ADD AI MESSAGE
-   ============================================================ */
-
-function addAIMessage(
-    container,
-    response
-) {
-
-    const message =
-        document.createElement("div");
-
-
-    message.className =
-        "ai-message";
-
-
-    message.innerHTML = `
-
-        <div class="ai-icon">
-            AI
-        </div>
-
-        <div>
-            ${response}
-        </div>
-
-    `;
-
-
-    container.appendChild(message);
-
-}
-
-
-/* ============================================================
-   ESCAPE HTML
-   ============================================================ */
-
-function escapeHTML(text) {
-
-    const div =
-        document.createElement("div");
-
-
-    div.textContent =
-        String(text || "");
-
-
-    return div.innerHTML;
-
-}
-
-
-/* ============================================================
-   SCROLL CHAT
-   ============================================================ */
-
-function scrollChatToBottom() {
-
-    const answer =
-        document.getElementById("answer");
-
-
-    if (!answer) {
-        return;
-    }
-
-
-    answer.scrollTo({
-
-        top:
-            answer.scrollHeight,
-
-        behavior:
-            "smooth"
-
-    });
-
-}
-
-
-/* ============================================================
-   CLEAR CHAT
-   ============================================================ */
-
-function clearChat() {
-
-    if (isWaitingForAI) {
-        return;
-    }
-
-
-    const answer =
-        document.getElementById("answer");
-
-
-    if (!answer) {
-        return;
-    }
-
-
-    answer.innerHTML =
-        getWelcomeHTML();
-
-
-    const input =
-        document.getElementById("question");
-
-
-    if (input) {
-
-        input.value = "";
-
-        input.focus();
-
-    }
-
-}
-
-
-/* ============================================================
-   WELCOME MODAL
-   ============================================================ */
-
-function acceptWelcome() {
-
-    const modal =
-        document.getElementById(
-            "welcome-modal"
-        );
-
-
-    if (!modal) {
-        return;
-    }
-
-
-    modal.style.display =
-        "none";
-
-
-    try {
-
-        localStorage.setItem(
-            "menyaWelcomeAccepted",
-            "true"
-        );
-
-    } catch (error) {
-
-        console.log(
-            "Local storage unavailable."
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   TOPIC CARD
-   ============================================================ */
-
-function toggleTopic(
-    topic,
-    button
-) {
-
-    const panels =
-        document.querySelectorAll(
-            ".topic-panel"
-        );
-
-
-    const cards =
-        document.querySelectorAll(
-            ".topic-card"
-        );
-
-
-    const selected =
-        document.getElementById(
-            "panel-" + topic
-        );
-
-
-    if (!selected) {
-        return;
-    }
-
-
-    const alreadyOpen =
-        selected.classList.contains(
-            "active"
-        );
-
-
-    panels.forEach(
-        function (panel) {
-
-            panel.classList.remove(
-                "active"
-            );
-
-        }
-    );
-
-
-    cards.forEach(
-        function (card) {
-
-            card.classList.remove(
-                "active"
-            );
-
-        }
-    );
-
-
-    if (!alreadyOpen) {
-
-        selected.classList.add(
-            "active"
-        );
-
-
-        if (button) {
-
-            button.classList.add(
-                "active"
-            );
-
-        }
-
-    }
-
-}
-
-
-/* ============================================================
-   ASK TOPIC
-   ============================================================ */
-
-function askTopic(question) {
 
     const input =
         document.getElementById(
@@ -1012,318 +1036,37 @@ function askTopic(question) {
         );
 
 
-    if (!input) {
-        return;
+    if (input) {
+
+        input.value =
+            "";
+
+        input.focus();
+
     }
-
-
-    input.value =
-        question;
-
-
-    sendQuestion();
 
 }
 
 
-/* ============================================================
-   HOME
-   ============================================================ */
+/* =========================================================
+   14. MAKE FUNCTIONS AVAILABLE
+========================================================= */
 
-function goHome() {
+window.acceptWelcome =
+    acceptWelcome;
 
-    if (isWaitingForAI) {
-        return;
-    }
 
+window.setupWelcomeScreen =
+    setupWelcomeScreen;
 
-    const answer =
-        document.getElementById(
-            "answer"
-        );
 
+window.showTopic =
+    showTopic;
 
-    if (answer) {
 
-        answer.innerHTML =
-            getWelcomeHTML();
+window.useTopicQuestion =
+    useTopicQuestion;
 
-    }
-
-
-    window.scrollTo({
-
-        top: 0,
-
-        behavior: "smooth"
-
-    });
-
-}
-
-
-/* ============================================================
-   ABOUT
-   ============================================================ */
-
-function showAbout() {
-
-    if (isWaitingForAI) {
-        return;
-    }
-
-
-    const answer =
-        document.getElementById(
-            "answer"
-        );
-
-
-    if (!answer) {
-        return;
-    }
-
-
-    answer.innerHTML = `
-
-        <div class="ai-message">
-
-            <div class="ai-icon">
-                AI
-            </div>
-
-            <div>
-
-                <h3>
-                    ℹ️ Abo turi bo
-                </h3>
-
-                <p>
-                    Menya SRHR ni umushinga ugamije
-                    gufasha abantu kubona amakuru
-                    ku buzima bw'imyororokere
-                    n'imibonano mpuzabitsina
-                    mu Kinyarwanda.
-                </p>
-
-                <p>
-                    Ushobora kubaza ibibazo ku mihango,
-                    gutwita, pregnancy testing,
-                    kuboneza urubyaro, HIV, STI,
-                    ukwemera n'ihohoterwa.
-                </p>
-
-                <p>
-                    Menya SRHR itanga amakuru rusange
-                    kandi ntabwo isimbura umukozi
-                    w'ubuzima.
-                </p>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    scrollChatToBottom();
-
-}
-
-
-/* ============================================================
-   PRIVACY
-   ============================================================ */
-
-function showPrivacy() {
-
-    if (isWaitingForAI) {
-        return;
-    }
-
-
-    const answer =
-        document.getElementById(
-            "answer"
-        );
-
-
-    if (!answer) {
-        return;
-    }
-
-
-    answer.innerHTML = `
-
-        <div class="ai-message">
-
-            <div class="ai-icon">
-                🔐
-            </div>
-
-            <div>
-
-                <h3>
-                    🔐 Ibanga n'umutekano
-                </h3>
-
-                <p>
-                    Irinde gushyiramo amazina yawe,
-                    aderesi, nimero ya telefoni cyangwa
-                    andi makuru akuranga.
-                </p>
-
-                <p>
-                    Baza ikibazo cyawe utagaragaje
-                    umwirondoro wawe.
-                </p>
-
-                <p>
-                    Niba ikibazo cyawe ari icyihutirwa,
-                    ntutegereze AI. Shaka ubufasha
-                    bw'umukozi w'ubuzima cyangwa
-                    serivisi z'ubutabazi.
-                </p>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    scrollChatToBottom();
-
-}
-
-
-/* ============================================================
-   OPTIONAL CATEGORY DETECTION
-   ============================================================
-
-   This does NOT answer questions.
-
-   It only helps the frontend understand the
-   general language/topic when needed later.
-
-   The actual authoritative answering order
-   remains on the SERVER:
-
-       1. Knowledge Base
-       2. OpenAI
-   ============================================================ */
-
-function detectLanguage(question) {
-
-    const q =
-        normalizeText(question);
-
-
-    const kinyarwandaWords = [
-
-        "ni",
-        "iki",
-        "ikihe",
-        "n gute",
-        "gute",
-        "ese",
-        "nshobora",
-        "nakora",
-        "gutwita",
-        "imihango",
-        "urubyaro",
-        "ihohoterwa",
-        "ubwumvikane",
-        "kwipima",
-        "ubuzima"
-
-    ];
-
-
-    let score = 0;
-
-
-    kinyarwandaWords.forEach(
-        function (word) {
-
-            if (
-                q.includes(
-                    normalizeText(word)
-                )
-            ) {
-
-                score++;
-
-            }
-
-        }
-    );
-
-
-    if (score > 0) {
-        return "kinyarwanda";
-    }
-
-
-    return "english";
-
-}
-
-
-/* ============================================================
-   NORMALIZE TEXT
-   ============================================================ */
-
-function normalizeText(text) {
-
-    return String(text || "")
-
-        .toLowerCase()
-
-        .normalize("NFD")
-
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
-        )
-
-        .replace(
-            /[’']/g,
-            "'"
-        )
-
-        .replace(
-            /[^\p{L}\p{N}\s']/gu,
-            " "
-        )
-
-        .replace(
-            /\s+/g,
-            " "
-        )
-
-        .trim();
-
-}
-
-
-/* ============================================================
-   MOBILE / RESPONSIVE SUPPORT
-   ============================================================
-
-   The existing HTML/CSS controls the mobile layout.
-
-   These functions deliberately do not change
-   your responsive design.
-
-   When a user selects a topic, the existing
-   topic panel behavior remains intact.
-   ============================================================ */
-
-
-/* ============================================================
-   EXPOSE FUNCTIONS TO HTML
-   ============================================================ */
 
 window.sendQuestion =
     sendQuestion;
@@ -1333,34 +1076,17 @@ window.clearChat =
     clearChat;
 
 
-window.acceptWelcome =
-    acceptWelcome;
+window.newChat =
+    newChat;
 
 
-window.askTopic =
-    askTopic;
+window.formatAnswer =
+    formatAnswer;
 
 
-window.toggleTopic =
-    toggleTopic;
+window.escapeHTML =
+    escapeHTML;
 
 
-window.goHome =
-    goHome;
-
-
-window.showAbout =
-    showAbout;
-
-
-window.showPrivacy =
-    showPrivacy;
-
-
-window.detectLanguage =
-    detectLanguage;
-
-
-/* ============================================================
-   END OF MENYA SRHR FRONTEND
-   ============================================================ */
+window.scrollNewMessageToTop =
+    scrollNewMessageToTop;
