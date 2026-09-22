@@ -12,7 +12,6 @@
 
     <title>Ai Yawe</title>
 
-
     <style>
 
         /* =====================================================
@@ -33,13 +32,8 @@
         }
 
         body {
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
+            font-family: Arial, Helvetica, sans-serif;
             background: #FAF8FF;
-
             color: #2E2140;
         }
 
@@ -48,16 +42,10 @@
             font-family: inherit;
         }
 
-
-        /* =====================================================
-           BRAND COLORS
-        ===================================================== */
-
         :root {
             --brand: #6D28D9;
             --brand-dark: #5B21B6;
             --brand-deep: #4C1D95;
-
             --brand-light: #F5F0FF;
             --brand-soft: #EDE9FE;
             --brand-border: #DDD6FE;
@@ -73,44 +61,33 @@
 
         /* =====================================================
            HEADER
-           CHATGPT-STYLE COMPACT SIZE
         ===================================================== */
 
         .main-header {
             height: 72px;
-
             position: relative;
-
             z-index: 100;
 
-            background:
-                var(--brand);
+            background: var(--brand);
 
-            border-bottom:
-                1px solid
-                rgba(255,255,255,0.20);
+            border-bottom: 1px solid rgba(255,255,255,0.20);
 
-            padding:
-                8px 18px;
+            padding: 8px 18px;
 
             box-shadow:
-                0 2px 10px
-                rgba(76,29,149,0.14);
+                0 2px 10px rgba(76,29,149,0.14);
 
             flex-shrink: 0;
         }
 
         .header-inner {
             width: 100%;
-
             height: 100%;
 
             margin: 0 auto;
 
             display: flex;
-
             align-items: center;
-
             justify-content: space-between;
 
             gap: 20px;
@@ -118,7 +95,6 @@
 
         .logo-area {
             display: flex;
-
             align-items: center;
 
             gap: 10px;
@@ -135,7 +111,6 @@
             display: block;
 
             object-fit: contain;
-
             object-position: center;
 
             background: transparent;
@@ -175,7 +150,7 @@
 
 
         /* =====================================================
-           TOP NAVIGATION
+           DESKTOP NAVIGATION
         ===================================================== */
 
         .top-nav {
@@ -187,17 +162,13 @@
         }
 
         .top-nav button {
-            border:
-                1px solid
-                rgba(255,255,255,0.18);
+            border: 1px solid rgba(255,255,255,0.18);
 
-            background:
-                rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.08);
 
             color: white;
 
-            padding:
-                8px 13px;
+            padding: 8px 13px;
 
             border-radius: 9px;
 
@@ -209,26 +180,22 @@
 
             white-space: nowrap;
 
-            transition:
-                0.2s ease;
+            transition: 0.2s ease;
         }
 
         .top-nav button:hover {
-            background:
-                rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.18);
         }
 
 
         /* =====================================================
            MAIN APPLICATION
-           CHATGPT-STYLE LAYOUT
         ===================================================== */
 
         .app-layout {
             width: 100%;
 
-            height:
-                calc(100vh - 72px);
+            height: calc(100vh - 72px);
 
             margin: 0 auto;
 
@@ -252,15 +219,12 @@
 
             min-height: 0;
 
-            background:
-                var(--brand-light);
+            background: var(--brand-light);
 
             border-right:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
 
-            padding:
-                16px 14px;
+            padding: 16px 14px;
 
             overflow-y: auto;
 
@@ -272,8 +236,7 @@
 
             font-weight: 800;
 
-            color:
-                var(--brand-deep);
+            color: var(--brand-deep);
 
             margin-bottom: 5px;
         }
@@ -281,8 +244,7 @@
         .sidebar-subtitle {
             font-size: 13px;
 
-            color:
-                var(--text);
+            color: var(--text);
 
             line-height: 1.45;
 
@@ -298,16 +260,13 @@
             width: 100%;
 
             border:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
 
-            background:
-                white;
+            background: white;
 
             border-radius: 12px;
 
-            padding:
-                11px;
+            padding: 11px;
 
             margin-bottom: 8px;
 
@@ -321,28 +280,22 @@
 
             gap: 10px;
 
-            transition:
-                0.2s ease;
+            transition: 0.2s ease;
 
             box-shadow:
-                0 1px 4px
-                rgba(76,29,149,0.04);
+                0 1px 4px rgba(76,29,149,0.04);
         }
 
         .topic-card:hover {
-            background:
-                var(--brand-soft);
+            background: var(--brand-soft);
 
-            border-color:
-                var(--brand);
+            border-color: var(--brand);
         }
 
         .topic-card.active {
-            background:
-                var(--brand-soft);
+            background: var(--brand-soft);
 
-            border-color:
-                var(--brand);
+            border-color: var(--brand);
         }
 
         .topic-card-icon {
@@ -356,15 +309,12 @@
             display: flex;
 
             align-items: center;
-
             justify-content: center;
 
-            background:
-                var(--brand-light);
+            background: var(--brand-light);
 
             border:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
 
             font-size: 20px;
         }
@@ -376,8 +326,7 @@
         }
 
         .topic-card-title {
-            color:
-                var(--brand-deep);
+            color: var(--brand-deep);
 
             font-size: 14px;
 
@@ -387,8 +336,7 @@
         }
 
         .topic-card-description {
-            color:
-                var(--text);
+            color: var(--text);
 
             font-size: 11px;
 
@@ -403,19 +351,16 @@
         .topic-panel {
             display: none;
 
-            margin:
-                -2px 0 10px;
+            margin: -2px 0 10px;
 
             padding: 9px;
 
             border-radius: 10px;
 
-            background:
-                white;
+            background: white;
 
             border:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
         }
 
         .topic-panel.active {
@@ -423,8 +368,7 @@
         }
 
         .topic-panel-title {
-            color:
-                var(--brand-deep);
+            color: var(--brand-deep);
 
             font-size: 11px;
 
@@ -437,11 +381,9 @@
             width: 100%;
 
             border:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
 
-            background:
-                #FCFAFF;
+            background: #FCFAFF;
 
             border-radius: 7px;
 
@@ -453,23 +395,19 @@
 
             cursor: pointer;
 
-            color:
-                var(--text);
+            color: var(--text);
 
             font-size: 11px;
 
             line-height: 1.35;
 
-            transition:
-                0.2s ease;
+            transition: 0.2s ease;
         }
 
         .topic-question-button:hover {
-            background:
-                var(--brand-soft);
+            background: var(--brand-soft);
 
-            border-color:
-                var(--brand);
+            border-color: var(--brand);
         }
 
 
@@ -483,13 +421,11 @@
             padding-top: 13px;
 
             border-top:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
         }
 
         .sidebar-help-title {
-            color:
-                var(--brand-deep);
+            color: var(--brand-deep);
 
             font-size: 12px;
 
@@ -503,8 +439,7 @@
 
             text-decoration: none;
 
-            color:
-                var(--text);
+            color: var(--text);
 
             font-size: 11px;
 
@@ -514,8 +449,7 @@
         }
 
         .help-link:hover {
-            color:
-                var(--brand);
+            color: var(--brand);
         }
 
 
@@ -536,19 +470,16 @@
 
             overflow: hidden;
 
-            background:
-                white;
+            background: white;
         }
 
 
         /* =====================================================
            ANSWER AREA
-           ONLY THIS AREA SCROLLS
         ===================================================== */
 
         #answer {
-            flex:
-                1 1 auto;
+            flex: 1 1 auto;
 
             min-height: 0;
 
@@ -558,8 +489,7 @@
 
             margin: 0 auto;
 
-            padding:
-                20px 28px 30px;
+            padding: 20px 28px 30px;
 
             overflow-y: auto;
 
@@ -574,9 +504,7 @@
 
 
         /* =====================================================
-           WELCOME MESSAGE
-           NO HEART ICON
-           VISIBLE WITHOUT SCROLLING
+           WELCOME CHAT
         ===================================================== */
 
         .welcome-chat {
@@ -584,18 +512,15 @@
 
             max-width: 720px;
 
-            margin:
-                70px auto 40px;
+            margin: 70px auto 40px;
 
             text-align: center;
         }
 
         .welcome-chat h2 {
-            color:
-                var(--brand-deep);
+            color: var(--brand-deep);
 
-            margin:
-                0 0 14px;
+            margin: 0 0 14px;
 
             font-size: 34px;
 
@@ -603,15 +528,13 @@
         }
 
         .welcome-chat p {
-            color:
-                var(--text);
+            color: var(--text);
 
             line-height: 1.6;
 
             font-size: 16px;
 
-            margin:
-                0 0 12px;
+            margin: 0 0 12px;
         }
 
 
@@ -630,13 +553,11 @@
         .user-bubble {
             max-width: 75%;
 
-            background:
-                var(--brand);
+            background: var(--brand);
 
             color: white;
 
-            padding:
-                10px 14px;
+            padding: 10px 14px;
 
             border-radius:
                 16px 16px 4px 16px;
@@ -646,8 +567,7 @@
             font-size: 14px;
 
             box-shadow:
-                0 2px 7px
-                rgba(109,40,217,0.14);
+                0 2px 7px rgba(109,40,217,0.14);
 
             word-wrap: break-word;
         }
@@ -672,8 +592,7 @@
 
             font-size: 14px;
 
-            color:
-                var(--dark);
+            color: var(--dark);
 
             scroll-margin-top: 20px;
         }
@@ -686,8 +605,7 @@
 
             border-radius: 50%;
 
-            background:
-                var(--brand-soft);
+            background: var(--brand-soft);
 
             display: flex;
 
@@ -695,8 +613,7 @@
 
             justify-content: center;
 
-            color:
-                var(--brand-deep);
+            color: var(--brand-deep);
 
             font-size: 10px;
 
@@ -712,8 +629,7 @@
         }
 
         .ai-message h3 {
-            color:
-                var(--brand-deep);
+            color: var(--brand-deep);
         }
 
         .answer-text {
@@ -721,8 +637,7 @@
         }
 
         .answer-text p {
-            margin:
-                0 0 12px;
+            margin: 0 0 12px;
         }
 
         .source-note {
@@ -730,25 +645,21 @@
 
             padding: 11px;
 
-            background:
-                var(--brand-light);
+            background: var(--brand-light);
 
             border:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
 
             border-radius: 9px;
 
             font-size: 11px;
 
-            color:
-                var(--text);
+            color: var(--text);
         }
 
 
         /* =====================================================
            CHAT INPUT
-           CHATGPT-STYLE
         ===================================================== */
 
         .chat-input-area {
@@ -756,24 +667,19 @@
 
             width: 100%;
 
-            flex:
-                0 0 auto;
+            flex: 0 0 auto;
 
-            background:
-                rgba(255,255,255,0.98);
+            background: rgba(255,255,255,0.98);
 
             border-top:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
 
-            padding:
-                10px 20px 12px;
+            padding: 10px 20px 12px;
 
             z-index: 50;
 
             box-shadow:
-                0 -2px 10px
-                rgba(76,29,149,0.04);
+                0 -2px 10px rgba(76,29,149,0.04);
         }
 
         .chat-input-inner {
@@ -795,32 +701,26 @@
 
             min-width: 0;
 
-            padding:
-                12px 15px;
+            padding: 12px 15px;
 
             border:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
 
             border-radius: 12px;
 
-            background:
-                white;
+            background: white;
 
-            color:
-                var(--dark);
+            color: var(--dark);
 
             font-size: 15px;
 
             outline: none;
 
-            transition:
-                0.2s ease;
+            transition: 0.2s ease;
         }
 
         #question:focus {
-            border-color:
-                var(--brand);
+            border-color: var(--brand);
 
             box-shadow:
                 0 0 0 2px
@@ -828,8 +728,7 @@
         }
 
         #question:disabled {
-            background:
-                #F5F0FF;
+            background: #F5F0FF;
 
             cursor: wait;
         }
@@ -837,13 +736,11 @@
         .send-button {
             border: none;
 
-            background:
-                var(--brand);
+            background: var(--brand);
 
             color: white;
 
-            padding:
-                0 21px;
+            padding: 0 21px;
 
             border-radius: 12px;
 
@@ -855,13 +752,11 @@
 
             white-space: nowrap;
 
-            transition:
-                0.2s ease;
+            transition: 0.2s ease;
         }
 
         .send-button:hover {
-            background:
-                var(--brand-dark);
+            background: var(--brand-dark);
         }
 
         .send-button:disabled {
@@ -873,8 +768,7 @@
         .privacy-reminder {
             text-align: center;
 
-            color:
-                var(--muted);
+            color: var(--muted);
 
             font-size: 10px;
 
@@ -894,17 +788,13 @@
             right: 20px;
 
             border:
-                1px solid
-                var(--brand-border);
+                1px solid var(--brand-border);
 
-            background:
-                white;
+            background: white;
 
-            color:
-                var(--brand-deep);
+            color: var(--brand-deep);
 
-            padding:
-                7px 10px;
+            padding: 7px 10px;
 
             border-radius: 8px;
 
@@ -918,8 +808,7 @@
         }
 
         .clear-button:hover {
-            background:
-                var(--brand-soft);
+            background: var(--brand-soft);
         }
 
 
@@ -947,8 +836,7 @@
         }
 
         .welcome-box {
-            background:
-                white;
+            background: white;
 
             border-radius: 18px;
 
@@ -961,16 +849,14 @@
             text-align: center;
 
             box-shadow:
-                0 15px 45px
-                rgba(0,0,0,0.25);
+                0 15px 45px rgba(0,0,0,0.25);
         }
 
         .welcome-logo {
             width: 105px;
             height: 105px;
 
-            margin:
-                0 auto 13px;
+            margin: 0 auto 13px;
 
             display: flex;
 
@@ -991,20 +877,17 @@
         }
 
         .welcome-box h1 {
-            color:
-                var(--brand-deep);
+            color: var(--brand-deep);
 
             font-size: 23px;
         }
 
         .welcome-box h3 {
-            color:
-                var(--brand);
+            color: var(--brand);
         }
 
         .welcome-box p {
-            color:
-                var(--text);
+            color: var(--text);
 
             line-height: 1.6;
 
@@ -1014,13 +897,11 @@
         .start-button {
             border: none;
 
-            background:
-                var(--brand);
+            background: var(--brand);
 
             color: white;
 
-            padding:
-                12px 23px;
+            padding: 12px 23px;
 
             border-radius: 10px;
 
@@ -1030,18 +911,60 @@
 
             margin-top: 8px;
 
-            transition:
-                0.2s ease;
+            transition: 0.2s ease;
         }
 
         .start-button:hover {
+            background: var(--brand-dark);
+        }
+
+
+        /* =====================================================
+           MOBILE MENU BUTTON
+           TOP-LEFT
+        ===================================================== */
+
+        .mobile-menu-button {
+            display: none;
+
+            border: none;
+
             background:
-                var(--brand-dark);
+                rgba(255,255,255,0.16);
+
+            color: white;
+
+            width: 42px;
+            height: 42px;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            font-size: 23px;
+
+            line-height: 1;
+
+            align-items: center;
+
+            justify-content: center;
+
+            flex-shrink: 0;
+        }
+
+        .mobile-menu-button:hover {
+            background:
+                rgba(255,255,255,0.24);
+        }
+
+        .mobile-menu-backdrop {
+            display: none;
         }
 
 
         /* =====================================================
            MOBILE
+           LEFT SLIDE MENU
         ===================================================== */
 
         @media (max-width: 800px) {
@@ -1054,23 +977,41 @@
             .main-header {
                 height: 64px;
 
-                padding:
-                    7px 12px;
+                padding: 7px 10px;
             }
 
             .header-inner {
                 gap: 8px;
+
+                justify-content: flex-start;
             }
 
-            .logo {
-                width: 44px;
-                height: 44px;
 
-                min-width: 44px;
+            /* =============================================
+               MENU IS NOW FIRST — TOP LEFT
+            ============================================= */
+
+            .mobile-menu-button {
+                display: flex;
+
+                order: 1;
             }
 
             .logo-area {
-                gap: 8px;
+                order: 2;
+
+                gap: 7px;
+
+                min-width: 0;
+
+                flex: 1;
+            }
+
+            .logo {
+                width: 42px;
+                height: 42px;
+
+                min-width: 42px;
             }
 
             .logo-area h1 {
@@ -1079,17 +1020,12 @@
 
             .logo-area p {
                 font-size: 9px;
+
+                white-space: nowrap;
             }
 
             .top-nav {
-                gap: 3px;
-            }
-
-            .top-nav button {
-                padding:
-                    7px 7px;
-
-                font-size: 10px;
+                display: none;
             }
 
             .app-layout {
@@ -1101,75 +1037,180 @@
                 overflow: hidden;
             }
 
+
+            /* =============================================
+               LEFT SIDE DRAWER
+            ============================================= */
+
             .sidebar {
-                height: auto;
+                position: fixed;
 
-                min-height: auto;
+                top: 64px;
 
-                max-height: 34vh;
+                left: 0;
 
-                border-right: none;
+                right: auto;
 
-                border-bottom:
-                    1px solid
-                    var(--brand-border);
+                bottom: 0;
+
+                width: min(88vw, 340px);
+
+                height:
+                    calc(100vh - 64px);
+
+                max-height: none;
+
+                min-height: 0;
+
+                z-index: 500;
+
+                border-right:
+                    1px solid var(--brand-border);
+
+                border-bottom: none;
 
                 padding:
-                    10px;
+                    14px 12px 110px;
 
                 overflow-y: auto;
+
+                overflow-x: hidden;
+
+                background:
+                    var(--brand-light);
+
+                transform:
+                    translateX(-105%);
+
+                transition:
+                    transform 0.25s ease;
+
+                box-shadow:
+                    8px 0 28px
+                    rgba(76,29,149,0.16);
+
+                -webkit-overflow-scrolling:
+                    touch;
             }
 
+            .sidebar.mobile-open {
+                transform:
+                    translateX(0);
+            }
+
+
+            /* =============================================
+               BACKDROP
+            ============================================= */
+
+            .mobile-menu-backdrop {
+                position: fixed;
+
+                inset:
+                    64px 0 0 0;
+
+                display: block;
+
+                background:
+                    rgba(20,10,30,0.38);
+
+                z-index: 450;
+
+                opacity: 0;
+
+                visibility: hidden;
+
+                pointer-events: none;
+
+                transition:
+                    opacity 0.25s ease,
+                    visibility 0.25s ease;
+            }
+
+            .mobile-menu-backdrop.active {
+                opacity: 1;
+
+                visibility: visible;
+
+                pointer-events: auto;
+            }
+
+
+            /* =============================================
+               SIDEBAR MOBILE CONTENT
+            ============================================= */
+
             .sidebar-title {
-                font-size: 18px;
+                font-size: 19px;
             }
 
             .sidebar-subtitle {
                 font-size: 11px;
 
-                margin-bottom: 10px;
+                margin-bottom: 12px;
             }
 
             .topic-card {
-                display: inline-flex;
+                display: flex;
 
-                width:
-                    calc(50% - 5px);
+                width: 100%;
 
-                vertical-align: top;
+                margin-right: 0;
 
-                margin-right: 3px;
-
-                padding: 9px;
+                padding: 10px;
             }
 
             .topic-card-icon {
-                width: 35px;
-                height: 35px;
+                width: 36px;
+                height: 36px;
 
-                min-width: 35px;
+                min-width: 36px;
 
                 font-size: 17px;
             }
 
             .topic-card-title {
-                font-size: 12px;
+                font-size: 13px;
             }
 
             .topic-card-description {
-                display: none;
+                display: block;
+
+                font-size: 10px;
             }
+
+            .topic-panel {
+                margin-bottom: 9px;
+            }
+
+            .topic-question-button {
+                min-height: 44px;
+
+                font-size: 12px;
+
+                padding: 10px 11px;
+            }
+
+
+            /* =============================================
+               CHAT
+            ============================================= */
 
             .chat-main {
                 height:
-                    calc(66vh - 0px);
+                    calc(100vh - 64px);
 
                 min-height: 0;
             }
 
             #answer {
                 padding:
-                    15px 14px 25px;
+                    15px 14px 150px;
+
+                overflow-y: auto;
+
+                -webkit-overflow-scrolling:
+                    touch;
             }
 
             .welcome-chat {
@@ -1185,9 +1226,34 @@
                 font-size: 14px;
             }
 
+
+            /* =============================================
+               FIXED MOBILE TEXT BOX
+            ============================================= */
+
             .chat-input-area {
+                position: fixed;
+
+                left: 0;
+
+                right: 0;
+
+                bottom: 0;
+
+                width: 100%;
+
                 padding:
-                    8px;
+                    8px 9px
+                    calc(
+                        8px +
+                        env(safe-area-inset-bottom)
+                    );
+
+                z-index: 300;
+            }
+
+            .chat-input-inner {
+                max-width: none;
             }
 
             #question {
@@ -1212,28 +1278,53 @@
                 bottom: 76px;
 
                 right: 10px;
-            }
 
+                z-index: 320;
+            }
         }
 
 
         /* =====================================================
-           SMALL MOBILE
+           SMALL PHONES
         ===================================================== */
 
         @media (max-width: 500px) {
 
-            .top-nav button {
-                padding:
-                    6px 4px;
+            .main-header {
+                padding-left: 7px;
 
-                font-size: 9px;
+                padding-right: 8px;
             }
 
-            .topic-card {
-                width: 100%;
+            .mobile-menu-button {
+                width: 40px;
+                height: 40px;
 
-                margin-right: 0;
+                font-size: 22px;
+            }
+
+            .logo {
+                width: 40px;
+                height: 40px;
+
+                min-width: 40px;
+            }
+
+            .logo-area h1 {
+                font-size: 18px;
+            }
+
+            .logo-area p {
+                font-size: 8px;
+            }
+
+            .sidebar {
+                width:
+                    min(92vw, 340px);
+            }
+
+            .topic-card-description {
+                display: none;
             }
 
             .input-row {
@@ -1248,7 +1339,6 @@
             .user-bubble {
                 max-width: 85%;
             }
-
         }
 
     </style>
@@ -1324,6 +1414,29 @@
 
     <div class="header-inner">
 
+
+        <!-- =============================================
+             MOBILE MENU BUTTON
+             TOP LEFT
+        ============================================== -->
+
+        <button
+            id="mobile-menu-button"
+            class="mobile-menu-button"
+            type="button"
+            aria-label="Fungura ingingo"
+            aria-controls="mobile-sidebar"
+            aria-expanded="false"
+            onclick="toggleMobileMenu()"
+        >
+            ☰
+        </button>
+
+
+        <!-- =============================================
+             LOGO
+        ============================================== -->
+
         <div class="logo-area">
 
             <img
@@ -1347,6 +1460,10 @@
         </div>
 
 
+        <!-- =============================================
+             DESKTOP NAVIGATION
+        ============================================== -->
+
         <nav class="top-nav">
 
             <button onclick="goHome()">
@@ -1369,7 +1486,18 @@
 
 
 <!-- =====================================================
-     APP
+     MOBILE BACKDROP
+===================================================== -->
+
+<div
+    id="mobile-menu-backdrop"
+    class="mobile-menu-backdrop"
+    onclick="closeMobileMenu()"
+></div>
+
+
+<!-- =====================================================
+     APPLICATION
 ===================================================== -->
 
 <div class="app-layout">
@@ -1379,7 +1507,10 @@
          SIDEBAR
     ================================================= -->
 
-    <aside class="sidebar">
+    <aside
+        id="mobile-sidebar"
+        class="sidebar"
+    >
 
         <div class="sidebar-title">
             Ai Yawe
@@ -1392,7 +1523,9 @@
         </div>
 
 
-        <!-- IMIHANGO -->
+        <!-- =================================================
+             IMIHANGO
+        ================================================= -->
 
         <button
             class="topic-card"
@@ -1466,7 +1599,9 @@
         </div>
 
 
-        <!-- GUTWITA -->
+        <!-- =================================================
+             GUTWITA
+        ================================================= -->
 
         <button
             class="topic-card"
@@ -1533,7 +1668,9 @@
         </div>
 
 
-        <!-- KUBONEZA -->
+        <!-- =================================================
+             KUBONEZA URUBYARO
+        ================================================= -->
 
         <button
             class="topic-card"
@@ -1607,7 +1744,9 @@
         </div>
 
 
-        <!-- HIV -->
+        <!-- =================================================
+             HIV & STI
+        ================================================= -->
 
         <button
             class="topic-card"
@@ -1688,7 +1827,9 @@
         </div>
 
 
-        <!-- CONSENT -->
+        <!-- =================================================
+             CONSENT
+        ================================================= -->
 
         <button
             class="topic-card"
@@ -1755,7 +1896,9 @@
         </div>
 
 
-        <!-- GBV -->
+        <!-- =================================================
+             GBV
+        ================================================= -->
 
         <button
             class="topic-card"
@@ -1822,7 +1965,9 @@
         </div>
 
 
-        <!-- QUICK HELP -->
+        <!-- =================================================
+             EMERGENCY HELP
+        ================================================= -->
 
         <div class="sidebar-help">
 
@@ -1871,7 +2016,7 @@
 
 
         <!-- =================================================
-             WELCOME / ANSWER AREA
+             ANSWER AREA
         ================================================= -->
 
         <div id="answer">
@@ -1951,10 +2096,125 @@
 
 
 <!-- =====================================================
-     PAGE FUNCTIONS
+     MOBILE MENU FUNCTIONS
 ===================================================== -->
 
 <script>
+
+function toggleMobileMenu() {
+
+    const sidebar =
+        document.getElementById(
+            "mobile-sidebar"
+        );
+
+    const backdrop =
+        document.getElementById(
+            "mobile-menu-backdrop"
+        );
+
+    const menuButton =
+        document.getElementById(
+            "mobile-menu-button"
+        );
+
+    if (!sidebar || !backdrop) {
+        return;
+    }
+
+    const isOpen =
+        sidebar.classList.contains(
+            "mobile-open"
+        );
+
+    if (isOpen) {
+
+        closeMobileMenu();
+
+        return;
+    }
+
+    sidebar.classList.add(
+        "mobile-open"
+    );
+
+    backdrop.classList.add(
+        "active"
+    );
+
+    if (menuButton) {
+
+        menuButton.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+        menuButton.innerHTML = "✕";
+    }
+
+}
+
+
+function closeMobileMenu() {
+
+    const sidebar =
+        document.getElementById(
+            "mobile-sidebar"
+        );
+
+    const backdrop =
+        document.getElementById(
+            "mobile-menu-backdrop"
+        );
+
+    const menuButton =
+        document.getElementById(
+            "mobile-menu-button"
+        );
+
+    if (sidebar) {
+
+        sidebar.classList.remove(
+            "mobile-open"
+        );
+
+    }
+
+    if (backdrop) {
+
+        backdrop.classList.remove(
+            "active"
+        );
+
+    }
+
+    if (menuButton) {
+
+        menuButton.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+        menuButton.innerHTML = "☰";
+
+    }
+
+}
+
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Escape") {
+
+            closeMobileMenu();
+
+        }
+
+    }
+);
+
 
 function toggleTopic(topic, button) {
 
@@ -1982,21 +2242,25 @@ function toggleTopic(topic, button) {
             "active"
         );
 
-    panels.forEach(function(panel) {
+    panels.forEach(
+        function(panel) {
 
-        panel.classList.remove(
-            "active"
-        );
+            panel.classList.remove(
+                "active"
+            );
 
-    });
+        }
+    );
 
-    cards.forEach(function(card) {
+    cards.forEach(
+        function(card) {
 
-        card.classList.remove(
-            "active"
-        );
+            card.classList.remove(
+                "active"
+            );
 
-    });
+        }
+    );
 
     if (!alreadyOpen) {
 
@@ -2019,6 +2283,8 @@ function toggleTopic(topic, button) {
 
 function askTopic(question) {
 
+    closeMobileMenu();
+
     const input =
         document.getElementById(
             "question"
@@ -2028,8 +2294,7 @@ function askTopic(question) {
         return;
     }
 
-    input.value =
-        question;
+    input.value = question;
 
     input.focus();
 
@@ -2039,6 +2304,8 @@ function askTopic(question) {
 
 
 function goHome() {
+
+    closeMobileMenu();
 
     const answer =
         document.getElementById(
@@ -2077,6 +2344,8 @@ function goHome() {
 
 
 function showAbout() {
+
+    closeMobileMenu();
 
     const answer =
         document.getElementById(
@@ -2135,6 +2404,8 @@ function showAbout() {
 
 function showPrivacy() {
 
+    closeMobileMenu();
+
     const answer =
         document.getElementById(
             "answer"
@@ -2190,7 +2461,7 @@ function showPrivacy() {
 
 
 <!-- =====================================================
-     JAVASCRIPT FILES
+     EXISTING PROJECT JAVASCRIPT
 ===================================================== -->
 
 <script src="knowledge.js"></script>
