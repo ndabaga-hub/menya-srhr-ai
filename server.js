@@ -1,6 +1,6 @@
 // ============================================================
 // AI YAWE / MENYA SRHR AI
-// COMPLETE BACKEND SERVER
+// COMPLETE BACKEND WITH RBC KNOWLEDGE LAYER
 // ============================================================
 
 const express = require("express");
@@ -11,14 +11,14 @@ const path = require("path");
 
 
 // ============================================================
-// ENVIRONMENT
+// LOAD ENVIRONMENT
 // ============================================================
 
 dotenv.config();
 
 
 // ============================================================
-// APP
+// APP SETTINGS
 // ============================================================
 
 const app = express();
@@ -75,7 +75,7 @@ if (process.env.OPENAI_API_KEY) {
 
 
 // ============================================================
-// KNOWLEDGE BASE
+// LOAD EXISTING KNOWLEDGE BASE
 // ============================================================
 
 let knowledgeBase = [];
@@ -87,7 +87,9 @@ try {
 
 
     if (
-        Array.isArray(knowledge)
+        Array.isArray(
+            knowledge
+        )
     ) {
 
         knowledgeBase =
@@ -115,7 +117,7 @@ try {
 
 
     console.log(
-        `✅ Knowledge base loaded: ${knowledgeBase.length} entries`
+        `✅ Existing knowledge base loaded: ${knowledgeBase.length} entries`
     );
 
 
@@ -133,13 +135,84 @@ try {
 
 
 // ============================================================
+// LOAD RBC KNOWLEDGE BASE
+// ============================================================
+
+let rbcKnowledgeBase = [];
+
+try {
+
+    const rbcKnowledge =
+        require(
+            "./rbc-knowledge.js"
+        );
+
+
+    if (
+        Array.isArray(
+            rbcKnowledge
+        )
+    ) {
+
+        rbcKnowledgeBase =
+            rbcKnowledge;
+
+    } else if (
+        Array.isArray(
+            rbcKnowledge.rbcKnowledgeBase
+        )
+    ) {
+
+        rbcKnowledgeBase =
+            rbcKnowledge.rbcKnowledgeBase;
+
+    }
+
+
+    console.log(
+        `🇷🇼 RBC knowledge loaded: ${rbcKnowledgeBase.length} entries`
+    );
+
+
+} catch (error) {
+
+    console.log(
+        "⚠️ RBC knowledge layer could not be loaded."
+    );
+
+    console.log(
+        error.message
+    );
+
+}
+
+
+// ============================================================
+// COMBINE KNOWLEDGE
+// ============================================================
+
+const allKnowledgeBase = [
+
+    ...knowledgeBase,
+
+    ...rbcKnowledgeBase
+
+];
+
+
+console.log(
+    `📚 Total knowledge entries: ${allKnowledgeBase.length}`
+);
+
+
+// ============================================================
 // LANGUAGE DETECTION
 // ============================================================
 
 function detectLanguage(question) {
 
     const text =
-        String(question)
+        question
             .toLowerCase()
             .trim();
 
@@ -205,12 +278,24 @@ function detectLanguage(question) {
         "ubufasha",
         "muganga",
         "ibinini",
+        "indwara zandurira",
         "ururenda",
-        "hiv yandura",
-        "hiv",
-        "stI",
-        "pep",
-        "prep"
+        "urubyiruko",
+        "abangavu",
+        "ingimbi",
+        "utwite",
+        "kubyara",
+        "umubyeyi",
+        "kanseri",
+        "inkondo",
+        "inkondo y'umura",
+        "urukingo",
+        "kanseri y'inkondo",
+        "kwisuzumisha",
+        "umujyanama",
+        "ikigo nderabuzima",
+        "ibitaro",
+        "ubuzima bw'imyororokere"
 
     ];
 
@@ -224,7 +309,9 @@ function detectLanguage(question) {
     ) {
 
         if (
-            text.includes(word)
+            text.includes(
+                word
+            )
         ) {
 
             score++;
@@ -258,7 +345,9 @@ function detectLanguage(question) {
     ) {
 
         if (
-            text.startsWith(start)
+            text.startsWith(
+                start
+            )
         ) {
 
             score += 2;
@@ -268,7 +357,9 @@ function detectLanguage(question) {
     }
 
 
-    if (score >= 1) {
+    if (
+        score >= 1
+    ) {
 
         return "kinyarwanda";
 
@@ -281,45 +372,16 @@ function detectLanguage(question) {
 
 
 // ============================================================
-// GET KNOWLEDGE ANSWER
-// ============================================================
-
-function getKnowledgeAnswer(item) {
-
-    if (!item) {
-        return null;
-    }
-
-
-    if (
-        typeof item === "string"
-    ) {
-
-        return item;
-
-    }
-
-
-    return (
-        item.answer ||
-        item.content ||
-        item.response ||
-        item.text ||
-        null
-    );
-
-}
-
-
-// ============================================================
-// KNOWLEDGE BASE SEARCH
+// KNOWLEDGE SEARCH
 // ============================================================
 
 function searchKnowledge(question) {
 
     if (
-        !Array.isArray(knowledgeBase) ||
-        knowledgeBase.length === 0
+        !Array.isArray(
+            allKnowledgeBase
+        ) ||
+        allKnowledgeBase.length === 0
     ) {
 
         return null;
@@ -354,7 +416,7 @@ function searchKnowledge(question) {
 
     for (
         const item
-        of knowledgeBase
+        of allKnowledgeBase
     ) {
 
         if (!item) {
@@ -365,14 +427,24 @@ function searchKnowledge(question) {
         const searchableText = [
 
             item.id,
+
             item.question,
+
             item.title,
+
             item.topic,
+
             item.keywords,
+
             item.answer,
+
             item.content,
+
             item.response,
-            item.text
+
+            item.text,
+
+            item.source
 
         ]
             .filter(Boolean)
@@ -388,9 +460,7 @@ function searchKnowledge(question) {
         let score = 0;
 
 
-        /*
-           Exact question.
-        */
+        /* Exact question */
 
         if (
             searchableText.includes(
@@ -403,9 +473,7 @@ function searchKnowledge(question) {
         }
 
 
-        /*
-           Individual words.
-        */
+        /* Word matching */
 
         for (
             const word
@@ -425,12 +493,12 @@ function searchKnowledge(question) {
         }
 
 
-        /*
-           Keywords.
-        */
+        /* Keyword matching */
 
         if (
-            Array.isArray(item.keywords)
+            Array.isArray(
+                item.keywords
+            )
         ) {
 
             for (
@@ -448,6 +516,46 @@ function searchKnowledge(question) {
                     score += 5;
 
                 }
+
+            }
+
+        }
+
+
+        /* Prefer RBC when the question is Rwanda-specific */
+
+        const rwandaWords = [
+
+            "rwanda",
+            "mu rwanda",
+            "rbc",
+            "ikigo nderabuzima",
+            "umujyanama",
+            "isange",
+            "urubyiruko",
+            "serivisi"
+
+        ];
+
+
+        for (
+            const word
+            of rwandaWords
+        ) {
+
+            if (
+                questionText.includes(
+                    word
+                ) &&
+                item.source &&
+                String(
+                    item.source
+                )
+                    .toLowerCase()
+                    .includes("rwanda biomedical centre")
+            ) {
+
+                score += 4;
 
             }
 
@@ -493,6 +601,44 @@ function searchKnowledge(question) {
 
 
     return null;
+
+}
+
+
+// ============================================================
+// GET ANSWER FROM KNOWLEDGE ITEM
+// ============================================================
+
+function getKnowledgeAnswer(item) {
+
+    if (!item) {
+        return null;
+    }
+
+
+    if (
+        typeof item ===
+        "string"
+    ) {
+
+        return item;
+
+    }
+
+
+    return (
+
+        item.answer ||
+
+        item.content ||
+
+        item.response ||
+
+        item.text ||
+
+        null
+
+    );
 
 }
 
@@ -548,17 +694,12 @@ function looksEnglish(text) {
         "mother",
         "child",
         "unprotected",
-        "spread",
-        "ways",
-        "exposed",
-        "body",
-        "fluids",
-        "especially",
-        "sharing",
-        "needles",
-        "equipment",
-        "infected",
-        "transmission"
+        "treatment",
+        "pregnancy",
+        "pregnant",
+        "vaccine",
+        "screening",
+        "provider"
 
     ];
 
@@ -581,7 +722,9 @@ function looksEnglish(text) {
 
 
         if (
-            regex.test(lower)
+            regex.test(
+                lower
+            )
         ) {
 
             matches++;
@@ -591,7 +734,9 @@ function looksEnglish(text) {
     }
 
 
-    return matches >= 3;
+    return (
+        matches >= 3
+    );
 
 }
 
@@ -600,10 +745,13 @@ function looksEnglish(text) {
 // SYSTEM INSTRUCTIONS
 // ============================================================
 
-function buildSystemInstructions(language) {
+function buildSystemInstructions(
+    language
+) {
 
     if (
-        language === "kinyarwanda"
+        language ===
+        "kinyarwanda"
     ) {
 
         return `
@@ -611,53 +759,57 @@ function buildSystemInstructions(language) {
 Uri Ai Yawe / Menya SRHR AI.
 
 Uri umufasha utanga amakuru yizewe ku buzima bw'imyororokere,
-ubuzima bw'imibonano mpuzabitsina, uburenganzira bwa muntu
-n'uburinganire.
+ubuzima bw'imibonano mpuzabitsina, HIV, STI, gutwita,
+kuboneza urubyaro, GBV, consent n'ubuzima bw'urubyiruko.
 
-Intego yawe ni ugufasha cyane cyane urubyiruko rwo mu Rwanda
-kubona amakuru yumvikana, yizewe kandi yubaha umuntu.
+Uri AI igenewe cyane cyane abantu bo mu Rwanda.
 
 AMATEGEKO AKOMEYE:
 
 1. NIBA UMUKORESHAJI ABASHE MU KINYARWANDA,
-   SUBIZA MU KINYARWANDA GUSA.
+   SUBIZA MU KINYARWANDA.
 
-2. NTUGIRE IGISUBIZO CYAWE MU CYONGEREZA.
+2. Ntugasubize mu Cyongereza keretse amagambo y'ubuvuzi
+   mpuzamahanga nka HIV, AIDS, STI, HPV, PEP, PrEP, ART,
+   ARV cyangwa izina ry'umuti/serivisi bikenewe kuguma uko biri.
 
-3. HIV, AIDS, STI, HPV, PEP, PrEP, ART na ARV
-   bishobora kuguma uko byanditse.
+3. Koresha Kinyarwanda cyoroshye kandi gisobanutse.
 
-4. Koresha Kinyarwanda cyoroshye kandi gisobanutse.
+4. Ntugire uwo ucira urubanza.
 
-5. Ntukaseke cyangwa ngo ucire urubanza umukoresha.
+5. Ntukihimbire amakuru.
 
-6. Tanga amakuru yizewe ashingiye ku bumenyi bw'ubuzima.
+6. Ntukore diagnosis y'umuntu nk'aho wamupimye.
 
-7. Ntukihimbire amakuru cyangwa imibare.
+7. Ntutange prescription y'umuti.
 
-8. Ntukore diagnosis nk'aho wasuzumye umuntu.
+8. Iyo ikibazo gisaba ubuvuzi bwihuse, shishikariza umuntu
+   kujya ku kigo nderabuzima, kwa muganga cyangwa ku butabazi.
 
-9. Niba ikibazo gishobora gushyira ubuzima mu kaga,
-   shishikariza umuntu gushaka ubufasha bw'abaganga.
+9. Ku ihohoterwa cyangwa sexual violence,
+   ntushinje uwahohotewe.
 
-10. Ku bibazo bya GBV cyangwa sexual violence,
-    ntushinje uwahohotewe.
+10. Consent igomba kuba ku bushake, isobanutse kandi
+    ishobora gukurwaho igihe icyo ari cyo cyose.
 
-11. Consent igomba kuba ku bushake,
-    isobanutse kandi ishobora gukurwaho.
+11. Iyo utazi igisubizo, vuga ko udafite amakuru ahagije.
 
-12. Ntutange prescription y'imiti.
+12. Ku bibazo byihariye by'u Rwanda, nka serivisi,
+    uburyo bwo kuboneza urubyaro, HIV/STI, GBV,
+    adolescent SRHR cyangwa cervical screening,
+    koresha amakuru yizewe ajyanye n'u Rwanda.
 
-13. Wubahe abantu bose.
+13. Iyo amakuru ya RBC ari yo y'ingenzi ku kibazo,
+    shyira ku musozo:
+    📚 Isoko: Rwanda Biomedical Centre (RBC).
 
-14. Niba utazi igisubizo neza,
-    vuga ko udafite amakuru ahagije.
+14. Ntukavangavange amakuru y'umuntu ku giti cye.
 
-15. Subiza mu buryo bugufi ariko bufite ibisobanuro bihagije.
+15. Subiza mu buryo bufite ibisobanuro bihagije,
+    ukoreshe headings na bullets igihe biboneye.
 
-16. Iyo bishoboka, koresha bullets na paragraphs ngufi.
-
-17. IGISUBIZO CYAWE GITEGEREZWA KUBA MU KINYARWANDA GUSA.
+IGISUBIZO CY'UMUKORESHAJI UKORESHE KINYARWANDA
+KERETSE AMAGAMBO MPUZAMAHANGA Y'UBUVUZI AKENEWE.
 
 `;
 
@@ -668,38 +820,38 @@ AMATEGEKO AKOMEYE:
 
 You are Ai Yawe / Menya SRHR AI.
 
-You provide reliable and respectful information about
-sexual and reproductive health.
+You provide reliable and respectful sexual and reproductive
+health information, with a focus on Rwanda.
 
-Use clear and simple language.
+Use clear language.
 
 If the user asks in English, answer in English.
 
-Do not judge the user.
-
-Do not invent medical facts.
+For Rwanda-specific questions, use the Rwanda-specific
+knowledge available to you.
 
 Do not diagnose users.
 
+Do not prescribe medication.
+
+Do not invent medical facts.
+
 For urgent situations, encourage appropriate medical care.
 
-For GBV or sexual violence, respond respectfully.
+For GBV or sexual violence, never blame the survivor.
 
-Consent must be voluntary and can be withdrawn.
-
-Do not prescribe medication.
+Consent must be voluntary, informed and withdrawable.
 
 If you do not know something, say so.
 
-Keep answers clear and reasonably concise.
-
 `;
+
 
 }
 
 
 // ============================================================
-// TRANSLATE ENGLISH → KINYARWANDA
+// FORCE KINYARWANDA
 // ============================================================
 
 async function forceKinyarwanda(
@@ -727,10 +879,10 @@ async function forceKinyarwanda(
 
                 instructions: `
 
-Uri umusemuzi wihariye wa Ai Yawe.
+Uri umusemuzi wa nyuma wa Ai Yawe / Menya SRHR AI.
 
-Hindura igisubizo kiri hasi ugishyire
-MU KINYARWANDA GUSA.
+Hindura igisubizo gikurikira ukivane mu Cyongereza
+ugishyire mu Kinyarwanda gisanzwe kandi cyumvikana.
 
 IKIBAZO:
 
@@ -742,16 +894,13 @@ ${answer}
 
 AMATEGEKO:
 
-- Koresha Kinyarwanda gusa.
-- Ntusige interuro z'Icyongereza.
-- Rinda ukuri kw'ubuvuzi.
-- HIV, AIDS, STI, HPV, PEP, PrEP, ART na ARV
+- SUBIZA MU KINYARWANDA.
+- RINDA UKURI KW'UBUVUZI.
+- NTUHINDURE ibisobanuro by'ingenzi.
+- HIV, AIDS, STI, HPV, PEP, PrEP, ART, ARV
   bishobora kuguma uko biri.
-- Niba igisubizo kirimo HTML,
-  RINDA HTML tags.
-- Hindura amagambo ari imbere muri HTML gusa.
+- RINDA HTML tags niba zihari.
 - Ntukongeremo Markdown.
-- Ntukongeremo ibisobanuro by'uko wahinduye.
 - Garura igisubizo gusa.
 
 `,
@@ -772,11 +921,6 @@ AMATEGEKO:
             ).trim();
 
 
-        if (!translated) {
-            return "";
-        }
-
-
         return translated;
 
 
@@ -795,7 +939,7 @@ AMATEGEKO:
 
 
 // ============================================================
-// GENERATE DIRECTLY IN KINYARWANDA
+// GENERATE KINYARWANDA ANSWER
 // ============================================================
 
 async function generateKinyarwandaAnswer(
@@ -826,19 +970,10 @@ async function generateKinyarwandaAnswer(
             });
 
 
-        const answer =
-            (
-                response.output_text ||
-                ""
-            ).trim();
-
-
-        if (!answer) {
-            return "";
-        }
-
-
-        return answer;
+        return (
+            response.output_text ||
+            ""
+        ).trim();
 
 
     } catch (error) {
@@ -856,7 +991,7 @@ async function generateKinyarwandaAnswer(
 
 
 // ============================================================
-// FINAL KINYARWANDA ENFORCEMENT
+// ENSURE KINYARWANDA
 // ============================================================
 
 async function ensureKinyarwanda(
@@ -865,18 +1000,9 @@ async function ensureKinyarwanda(
 ) {
 
     if (!answer) {
-
-        return (
-            "Mbabarira, nta gisubizo cyabonetse."
-        );
-
+        return "";
     }
 
-
-    /*
-       If the answer is already Kinyarwanda,
-       leave it alone.
-    */
 
     if (
         !looksEnglish(answer)
@@ -888,14 +1014,9 @@ async function ensureKinyarwanda(
 
 
     console.log(
-        "🌍 English answer detected."
+        "🌍 Translating answer to Kinyarwanda..."
     );
 
-
-    /*
-       FIRST ATTEMPT:
-       Translate the existing answer.
-    */
 
     const translated =
         await forceKinyarwanda(
@@ -906,23 +1027,15 @@ async function ensureKinyarwanda(
 
     if (
         translated &&
-        !looksEnglish(translated)
+        !looksEnglish(
+            translated
+        )
     ) {
-
-        console.log(
-            "✅ Translation produced Kinyarwanda."
-        );
 
         return translated;
 
     }
 
-
-    /*
-       SECOND ATTEMPT:
-       Generate a completely new answer
-       directly in Kinyarwanda.
-    */
 
     console.log(
         "🔄 Generating fresh Kinyarwanda answer..."
@@ -935,38 +1048,11 @@ async function ensureKinyarwanda(
         );
 
 
-    /*
-       IMPORTANT:
-
-       The old code accepted the fresh answer
-       without checking it.
-
-       This version checks it again.
-    */
-
-    if (
-        fresh &&
-        !looksEnglish(fresh)
-    ) {
-
-        console.log(
-            "✅ Fresh answer confirmed as Kinyarwanda."
-        );
+    if (fresh) {
 
         return fresh;
 
     }
-
-
-    /*
-       THIRD SAFETY:
-
-       Never send English to a Kinyarwanda user.
-    */
-
-    console.log(
-        "⚠️ Could not produce a confirmed Kinyarwanda answer."
-    );
 
 
     return (
@@ -979,7 +1065,7 @@ async function ensureKinyarwanda(
 
 
 // ============================================================
-// HOME PAGE
+// HOME
 // ============================================================
 
 app.get(
@@ -1019,8 +1105,14 @@ app.get(
             model:
                 MODEL,
 
+            existingKnowledgeEntries:
+                knowledgeBase.length,
+
+            rbcKnowledgeEntries:
+                rbcKnowledgeBase.length,
+
             knowledgeBaseEntries:
-                knowledgeBase.length
+                allKnowledgeBase.length
 
         });
 
@@ -1041,10 +1133,6 @@ app.post(
             const question =
                 req.body.question;
 
-
-            /* ------------------------------------------------
-               VALIDATE
-            ------------------------------------------------ */
 
             if (
                 !question ||
@@ -1087,19 +1175,15 @@ app.post(
             }
 
 
-            console.log("");
             console.log(
-                "=============================================="
-            );
-            console.log(
-                "👤 USER:",
+                "👤 User:",
                 cleanQuestion
             );
 
 
-            /* ------------------------------------------------
-               LANGUAGE
-            ------------------------------------------------ */
+            // =================================================
+            // LANGUAGE
+            // =================================================
 
             const language =
                 detectLanguage(
@@ -1108,14 +1192,14 @@ app.post(
 
 
             console.log(
-                "🌍 LANGUAGE:",
+                "🌍 Language:",
                 language
             );
 
 
-            /* ------------------------------------------------
-               KNOWLEDGE BASE
-            ------------------------------------------------ */
+            // =================================================
+            // SEARCH KNOWLEDGE
+            // =================================================
 
             const knowledgeResult =
                 searchKnowledge(
@@ -1128,30 +1212,26 @@ app.post(
                 knowledgeResult.answer
             ) {
 
-                console.log(
-                    "📚 Knowledge base match:",
-                    knowledgeResult.item.id ||
-                    "unknown"
-                );
-
-
                 let answer =
                     knowledgeResult.answer;
 
 
-                /*
-                   VERY IMPORTANT:
+                const source =
+                    knowledgeResult.item &&
+                    knowledgeResult.item.source
+                        ? knowledgeResult.item.source
+                        : "knowledge-base";
 
-                   Kinyarwanda question =
-                   Kinyarwanda answer.
 
-                   This applies even when the
-                   knowledge base answer itself
-                   is English.
-                */
+                console.log(
+                    "📚 Knowledge match:",
+                    source
+                );
+
 
                 if (
-                    language === "kinyarwanda"
+                    language ===
+                    "kinyarwanda"
                 ) {
 
                     answer =
@@ -1163,11 +1243,6 @@ app.post(
                 }
 
 
-                console.log(
-                    "✅ Returning knowledge-base answer."
-                );
-
-
                 return res.json({
 
                     success:
@@ -1177,7 +1252,7 @@ app.post(
                         answer,
 
                     source:
-                        "knowledge-base",
+                        source,
 
                     language:
                         language
@@ -1187,9 +1262,9 @@ app.post(
             }
 
 
-            /* ------------------------------------------------
-               OPENAI REQUIRED
-            ------------------------------------------------ */
+            // =================================================
+            // OPENAI
+            // =================================================
 
             if (!openai) {
 
@@ -1207,10 +1282,6 @@ app.post(
 
             }
 
-
-            /* ------------------------------------------------
-               OPENAI
-            ------------------------------------------------ */
 
             console.log(
                 "🤖 Asking OpenAI..."
@@ -1258,12 +1329,13 @@ app.post(
             }
 
 
-            /* ------------------------------------------------
-               FINAL LANGUAGE CHECK
-            ------------------------------------------------ */
+            // =================================================
+            // FINAL LANGUAGE CHECK
+            // =================================================
 
             if (
-                language === "kinyarwanda"
+                language ===
+                "kinyarwanda"
             ) {
 
                 answer =
@@ -1276,14 +1348,8 @@ app.post(
 
 
             console.log(
-                "✅ AI answered."
+                "✅ AI answered"
             );
-
-
-            console.log(
-                "=============================================="
-            );
-            console.log("");
 
 
             return res.json({
@@ -1305,10 +1371,10 @@ app.post(
 
         } catch (error) {
 
-            console.error("");
             console.error(
                 "❌ CHAT ERROR:"
             );
+
             console.error(
                 error
             );
@@ -1341,6 +1407,7 @@ app.listen(
     () => {
 
         console.log("");
+
         console.log(
             "=============================================="
         );
@@ -1366,7 +1433,15 @@ app.listen(
         );
 
         console.log(
-            `📚 Knowledge entries: ${knowledgeBase.length}`
+            `📚 Existing knowledge: ${knowledgeBase.length}`
+        );
+
+        console.log(
+            `🇷🇼 RBC knowledge: ${rbcKnowledgeBase.length}`
+        );
+
+        console.log(
+            `📚 Total knowledge: ${allKnowledgeBase.length}`
         );
 
         console.log(
