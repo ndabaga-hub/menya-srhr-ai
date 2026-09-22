@@ -59,11 +59,6 @@ const rbcKnowledgeBase = [
                 n'izindi mpamvu. Umukozi w'ubuzima ashobora kugufasha
                 guhitamo uburyo bukubereye.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre (RBC) —
-                Maternal, Child and Community Health Division.
-            </div>
         `
     },
 
@@ -111,10 +106,6 @@ const rbcKnowledgeBase = [
                 w'ubuzima aho utuye kugira ngo ubone amakuru
                 ahagije mbere yo guhitamo.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre (RBC).
-            </div>
         `
     },
 
@@ -160,10 +151,6 @@ const rbcKnowledgeBase = [
                 utabanje kubona inama y'umukozi w'ubuzima igihe
                 ibyo bikenewe.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre (RBC).
-            </div>
         `
     },
 
@@ -211,11 +198,6 @@ const rbcKnowledgeBase = [
                 w'ubuzima cyangwa umujyanama w'ubuzima ukakubwira
                 amakuru y'ibanga n'ubufasha bukwiye.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre (RBC) —
-                Adolescent Sexual and Reproductive Health programme.
-            </div>
         `
     },
 
@@ -259,11 +241,6 @@ const rbcKnowledgeBase = [
                 Niba ukeka ko utwite, ganira n'umukozi w'ubuzima
                 kugira ngo utangire gukurikiranwa hakiri kare.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                National Antenatal Care Guidelines.
-            </div>
         `
     },
 
@@ -305,11 +282,6 @@ const rbcKnowledgeBase = [
                 Niba ufite ikibazo gikomeye cyangwa wumva ubuzima bwawe
                 buri mu kaga, shaka ubufasha bw'ubuvuzi bwihuse.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                Maternal and Newborn Health guidance.
-            </div>
         `
     },
 
@@ -353,11 +325,6 @@ const rbcKnowledgeBase = [
                 ububabare bukomeye, umuriro, isereri cyangwa guhumeka nabi,
                 ni ngombwa gushaka ubufasha bw'ubuvuzi.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                Maternal, Child and Community Health Division.
-            </div>
         `
     },
 
@@ -402,11 +369,6 @@ const rbcKnowledgeBase = [
                 Kwipimisha HIV ni ingenzi kuko umuntu ashobora kuba
                 afite HIV atagaragaza ibimenyetso.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                HIV Prevention, Treatment and Care guidance.
-            </div>
         `
     },
 
@@ -446,11 +408,6 @@ const rbcKnowledgeBase = [
                 PrEP ntabwo isimbura udukingirizo mu gukumira izindi STI
                 cyangwa gutwita.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                HIV prevention guidance.
-            </div>
         `
     },
 
@@ -495,11 +452,6 @@ const rbcKnowledgeBase = [
             <div class="important-warning">
                 ⚠️ Iyo habayeho ibyago byo guhura na HIV, shaka
                 ubufasha bw'ubuvuzi vuba bishoboka.
-            </div>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                HIV Prevention, Treatment and Care guidance.
             </div>
         `
     },
@@ -546,11 +498,6 @@ const rbcKnowledgeBase = [
                 n'umukozi w'ubuzima kugira ngo umenye ibipimo
                 n'ubuvuzi bukwiye.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                HIV/STI and Viral Hepatitis guidance.
-            </div>
         `
     },
 
@@ -592,11 +539,6 @@ const rbcKnowledgeBase = [
                 Ku ndwara zimwe, uwo mwakoranye imibonano ashobora
                 na we gukenera gupimwa cyangwa kuvurwa.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                HIV/STI guidelines.
-            </div>
         `
     },
 
@@ -641,12 +583,6 @@ const rbcKnowledgeBase = [
                 kwisuzumisha, ganira n'umukozi w'ubuzima cyangwa
                 ujye ku kigo gitanga serivisi zo kwisuzumisha.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                National Guideline for Cervical Cancer Screening
-                and Treatment of Pre-cancerous Lesions.
-            </div>
         `
     },
 
@@ -687,10 +623,6 @@ const rbcKnowledgeBase = [
                 mukeneye urukingo rwa HPV, ganira n'umukozi w'ubuzima
                 cyangwa ukurikize gahunda y'ikingira itangwa mu Rwanda.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre (RBC).
-            </div>
         `
     },
 
@@ -741,11 +673,6 @@ const rbcKnowledgeBase = [
 
             <div class="important-warning">
                 ❤️ Ihohoterwa si amakosa y'uwahohotewe.
-            </div>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                Maternal, Child and Community Health Division.
             </div>
         `
     },
@@ -798,10 +725,6 @@ const rbcKnowledgeBase = [
                 ⚠️ Niba uri mu kaga ako kanya, banza ujye ahantu
                 hatekanye ushake ubufasha bwihuse.
             </div>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre.
-            </div>
         `
     },
 
@@ -843,11 +766,6 @@ const rbcKnowledgeBase = [
                 Ku butabazi bwihutirwa bw'ambulance, RBC igaragaza:
                 <strong>912</strong>.
             </p>
-
-            <div class="source-note">
-                📚 Isoko: Rwanda Biomedical Centre —
-                Contact Us.
-            </div>
         `
     }
 
